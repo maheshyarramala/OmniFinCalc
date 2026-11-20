@@ -1,0 +1,8 @@
+{
+  "name": "OmniFinCalc",
+  "description": "All-in-one calculator with advanced EMI amortization, investment projections, scientific computation, and utility tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
