@@ -2,6 +2,7 @@ package com.example.ui.screens.emi
 import com.example.ui.theme.performConfiguredHapticFeedback
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.horizontalScroll
@@ -39,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.ui.screens.loan.LoanTrackerScreen
 import com.example.ui.screens.loan.LoanTrackerViewModel
+import com.example.ui.theme.OmniFinCalcThemeTokens
 
 enum class EmiSubTab(val title: String, val icon: ImageVector) {
   CALCULATOR("EMI Calculator", Icons.Default.Calculate),
@@ -110,22 +112,60 @@ fun EmiScreen(
       )
     }
   ) {
-    PrimaryTabRow(
-      selectedTabIndex = selectedSubTab.ordinal,
-      containerColor = MaterialTheme.colorScheme.surface,
-      modifier = Modifier.fillMaxWidth().testTag("emi_sub_tabs")
+    val semantic = OmniFinCalcThemeTokens.colors
+    Surface(
+      shape = RoundedCornerShape(14.dp),
+      color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 10.dp)
+        .testTag("emi_sub_tabs")
     ) {
-      EmiSubTab.values().forEach { subTab ->
-        Tab(
-          selected = selectedSubTab == subTab,
-          onClick = {
-            haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-            selectedSubTab = subTab
-          },
-          icon = { Icon(subTab.icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-          text = { Text(subTab.title, fontWeight = FontWeight.SemiBold, fontSize = 12.sp) },
-          modifier = Modifier.testTag("emi_tab_${subTab.name.lowercase()}")
-        )
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+      ) {
+        EmiSubTab.values().forEach { subTab ->
+          val isSelected = selectedSubTab == subTab
+          Surface(
+            onClick = {
+              haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+              selectedSubTab = subTab
+            },
+            shape = RoundedCornerShape(10.dp),
+            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+            modifier = Modifier
+              .weight(1f)
+              .testTag("emi_tab_${subTab.name.lowercase()}")
+          ) {
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 8.dp),
+              horizontalArrangement = Arrangement.Center,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Icon(
+                subTab.icon,
+                contentDescription = null,
+                tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
+              )
+              Spacer(modifier = Modifier.width(6.dp))
+              Text(
+                text = subTab.title,
+                style = MaterialTheme.typography.labelMedium.copy(
+                  fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                ),
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+              )
+            }
+          }
+        }
       }
     }
 
@@ -153,17 +193,18 @@ fun EmiScreen(
       modifier = Modifier
         .fillMaxSize()
         .padding(paddingValues),
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
       // Input Form Card
       item {
         Card(
           shape = RoundedCornerShape(20.dp),
+          border = BorderStroke(1.dp, semantic.cardBorder),
           colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
           ),
-          elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(
@@ -324,8 +365,10 @@ fun EmiScreen(
       item {
         Card(
           shape = RoundedCornerShape(20.dp),
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
           colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+            containerColor = MaterialTheme.colorScheme.surface
           ),
           modifier = Modifier.fillMaxWidth()
         ) {
@@ -335,14 +378,16 @@ fun EmiScreen(
           ) {
             Text(
               text = "Monthly EMI Payment",
-              style = MaterialTheme.typography.titleSmall,
+              style = MaterialTheme.typography.labelLarge,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
               text = CurrencyFormatter.format(state.emiResult.monthlyEmi),
               style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 32.sp
+                fontSize = 32.sp,
+                fontFeatureSettings = "tnum"
               ),
               color = MaterialTheme.colorScheme.primary
             )
@@ -360,25 +405,31 @@ fun EmiScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            HorizontalDivider(color = semantic.divider)
             Spacer(modifier = Modifier.height(16.dp))
 
             // Stat Cards Grid
             Row(
-              modifier = Modifier.fillMaxWidth(),
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
               horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
               StatBox(
                 title = "Total Interest",
                 value = CurrencyFormatter.format(state.emiResult.totalInterest),
                 color = ChartInterest,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
               )
               StatBox(
                 title = "Total Amount",
                 value = CurrencyFormatter.format(state.emiResult.totalPayment),
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
               )
             }
           }
@@ -388,7 +439,9 @@ fun EmiScreen(
       // Pre-Payment / Part-Payment Section
       item {
         Card(
-          shape = RoundedCornerShape(16.dp),
+          shape = RoundedCornerShape(18.dp),
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
           modifier = Modifier.fillMaxWidth()
         ) {
@@ -398,7 +451,7 @@ fun EmiScreen(
               horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically
             ) {
-              Column {
+              Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                 Text(
                   text = "Pre-Payments & Part-Payments",
                   style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -412,7 +465,7 @@ fun EmiScreen(
               }
               Button(
                 onClick = { viewModel.setShowPrepaymentDialog(true) },
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 modifier = Modifier.testTag("add_prepayment_button")
               ) {
@@ -426,9 +479,11 @@ fun EmiScreen(
             if (state.emiResult.interestSaved > 0.0 || state.emiResult.tenureMonthsSaved > 0) {
               Spacer(modifier = Modifier.height(12.dp))
               Card(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, semantic.income.copy(alpha = 0.28f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 colors = CardDefaults.cardColors(
-                  containerColor = Color(0xFFECFDF5)
+                  containerColor = semantic.incomeContainer
                 ),
                 modifier = Modifier.fillMaxWidth()
               ) {
@@ -439,20 +494,20 @@ fun EmiScreen(
                   Icon(
                     Icons.Default.Celebration,
                     contentDescription = null,
-                    tint = Color(0xFF059669),
-                    modifier = Modifier.size(28.dp)
+                    tint = semantic.income,
+                    modifier = Modifier.size(26.dp)
                   )
                   Spacer(modifier = Modifier.width(12.dp))
                   Column {
                     Text(
                       text = "Savings With Prepayment",
                       style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                      color = Color(0xFF065F46)
+                      color = semantic.income
                     )
                     Text(
-                      text = "Interest Saved: ${CurrencyFormatter.format(state.emiResult.interestSaved)} | Tenure cut by ${state.emiResult.tenureMonthsSaved} months!",
-                      style = MaterialTheme.typography.bodySmall,
-                      color = Color(0xFF047857)
+                      text = "Interest Saved: ${CurrencyFormatter.format(state.emiResult.interestSaved)} • Tenure cut by ${state.emiResult.tenureMonthsSaved} months",
+                      style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+                      color = MaterialTheme.colorScheme.onSurface
                     )
                   }
                 }
@@ -582,10 +637,13 @@ private fun StatBox(
   color: Color,
   modifier: Modifier = Modifier
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Card(
-    shape = RoundedCornerShape(12.dp),
+    shape = RoundedCornerShape(14.dp),
+    border = BorderStroke(1.dp, semantic.cardBorder),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surface
+      containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
     ),
     modifier = modifier
   ) {
@@ -598,7 +656,10 @@ private fun StatBox(
       Spacer(modifier = Modifier.height(4.dp))
       Text(
         text = value,
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+        style = MaterialTheme.typography.titleMedium.copy(
+          fontWeight = FontWeight.Bold,
+          fontFeatureSettings = "tnum"
+        ),
         color = color
       )
     }
@@ -607,31 +668,35 @@ private fun StatBox(
 
 @Composable
 private fun AmortizationTableHeader() {
+  val semantic = OmniFinCalcThemeTokens.colors
   Card(
-    shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+    shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+    border = BorderStroke(1.dp, semantic.cardBorder),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surfaceVariant
+      containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
     ),
     modifier = Modifier.fillMaxWidth()
   ) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 12.dp, vertical = 8.dp),
+        .padding(horizontal = 12.dp, vertical = 10.dp),
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically
     ) {
-      Text("Mo.", fontWeight = FontWeight.Bold, fontSize = 11.sp, modifier = Modifier.width(32.dp))
-      Text("Opening", fontWeight = FontWeight.Bold, fontSize = 11.sp, modifier = Modifier.weight(1.3f))
-      Text("Principal", fontWeight = FontWeight.Bold, fontSize = 11.sp, modifier = Modifier.weight(1.1f))
-      Text("Interest", fontWeight = FontWeight.Bold, fontSize = 11.sp, modifier = Modifier.weight(1.1f))
-      Text("Closing", fontWeight = FontWeight.Bold, fontSize = 11.sp, modifier = Modifier.weight(1.3f))
+      Text("Mo.", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(32.dp))
+      Text("Opening", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.3f))
+      Text("Principal", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.1f))
+      Text("Interest", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.1f))
+      Text("Closing", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.3f))
     }
   }
 }
 
 @Composable
 private fun AmortizationRow(item: AmortizationMonth) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val isYearEnd = item.monthIndex % 12 == 0
   val bg = if (item.monthIndex % 2 == 0) {
     MaterialTheme.colorScheme.surface
@@ -659,33 +724,32 @@ private fun AmortizationRow(item: AmortizationMonth) {
       Row(modifier = Modifier.width(32.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
           text = item.monthIndex.toString(),
-          style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+          style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
           color = MaterialTheme.colorScheme.primary
         )
       }
       Text(
         text = openingStr,
-        fontSize = 11.sp,
+        style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.weight(1.3f)
       )
       Text(
         text = principalStr,
-        fontSize = 11.sp,
+        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium, fontFeatureSettings = "tnum"),
         color = ChartPrincipal,
-        fontWeight = FontWeight.Medium,
         modifier = Modifier.weight(1.1f)
       )
       Text(
         text = interestStr,
-        fontSize = 11.sp,
+        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium, fontFeatureSettings = "tnum"),
         color = ChartInterest,
-        fontWeight = FontWeight.Medium,
         modifier = Modifier.weight(1.1f)
       )
       Text(
         text = closingStr,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.SemiBold,
+        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"),
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.weight(1.3f)
       )
     }
@@ -697,25 +761,27 @@ private fun AmortizationRow(item: AmortizationMonth) {
           .padding(top = 4.dp),
         horizontalArrangement = Arrangement.End
       ) {
-        SuggestionChip(
-          onClick = {},
-          label = {
-            Text(
-              "Part-Payment: ${CurrencyFormatter.format(item.prepayment)}",
+        Surface(
+          shape = RoundedCornerShape(99.dp),
+          color = semantic.incomeContainer
+        ) {
+          Text(
+            text = "Part-Payment: ${CurrencyFormatter.format(item.prepayment)}",
+            style = MaterialTheme.typography.labelSmall.copy(
               fontSize = 10.sp,
-              color = Color(0xFF047857)
-            )
-          },
-          colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0xFFD1FAE5)),
-          border = null,
-          modifier = Modifier.height(24.dp)
-        )
+              fontWeight = FontWeight.SemiBold,
+              fontFeatureSettings = "tnum"
+            ),
+            color = semantic.income,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+          )
+        }
       }
     }
 
     if (isYearEnd) {
       HorizontalDivider(
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
         thickness = 1.dp,
         modifier = Modifier.padding(top = 6.dp)
       )
@@ -734,18 +800,27 @@ private fun PrepaymentDialog(
 
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text("Add Prepayment / Part-Payment") },
+    containerColor = MaterialTheme.colorScheme.surface,
+    shape = RoundedCornerShape(22.dp),
+    title = {
+      Text(
+        "Add Prepayment / Part-Payment",
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+      )
+    },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
           "Enter the month index when you want to make a lump sum prepayment, and the amount.",
-          style = MaterialTheme.typography.bodySmall
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         OutlinedTextField(
           value = monthStr,
           onValueChange = { monthStr = it.filter { c -> c.isDigit() } },
           label = { Text("Month Number (1 to $totalMonths)") },
           singleLine = true,
+          shape = RoundedCornerShape(14.dp),
           modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
@@ -754,6 +829,7 @@ private fun PrepaymentDialog(
           label = { Text("Prepayment Amount (₹)") },
           prefix = { Text("₹ ") },
           singleLine = true,
+          shape = RoundedCornerShape(14.dp),
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -766,7 +842,8 @@ private fun PrepaymentDialog(
           if (m > 0 && a > 0.0) {
             onConfirm(m, a)
           }
-        }
+        },
+        shape = RoundedCornerShape(12.dp)
       ) {
         Text("Apply")
       }

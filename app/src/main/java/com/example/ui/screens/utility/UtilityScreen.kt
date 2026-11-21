@@ -1,6 +1,7 @@
 package com.example.ui.screens.utility
 import com.example.ui.theme.performConfiguredHapticFeedback
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -36,6 +37,7 @@ import com.example.ui.components.NumberInputField
 import android.content.Intent
 import com.example.ui.screens.utility.UtilityViewModel
 import com.example.ui.screens.utility.UtilityTab
+import com.example.ui.theme.OmniFinCalcThemeTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,10 +104,13 @@ fun UtilityScreen(
         }
     ) {
       // Sub-Tabs with distinctive icons so users can choose visually
+      val semantic = OmniFinCalcThemeTokens.colors
       ScrollableTabRow(
         selectedTabIndex = state.selectedTab.ordinal,
         edgePadding = 12.dp,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.primary,
+        divider = { HorizontalDivider(color = semantic.divider) },
         modifier = Modifier
           .fillMaxWidth()
           .testTag("utility_tabs")
@@ -125,11 +130,13 @@ fun UtilityScreen(
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
               viewModel.selectTab(tab)
             },
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
             text = {
               Text(
                 text = tab.title,
-                fontWeight = if (state.selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
+                fontWeight = if (state.selectedTab == tab) FontWeight.Bold else FontWeight.Medium,
                 fontSize = 11.sp,
                 maxLines = 1
               )
@@ -319,12 +326,14 @@ private fun CurrencyCalculatorSection(viewModel: UtilityViewModel) {
     )
   }
 
+  val semantic = OmniFinCalcThemeTokens.colors
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     // 1-to-1 Currency Converter Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
@@ -526,31 +535,34 @@ private fun CurrencyCalculatorSection(viewModel: UtilityViewModel) {
         // Prominent Converted Result Box (full values without truncation)
         Card(
           shape = RoundedCornerShape(16.dp),
-          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+          border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(
             modifier = Modifier.padding(18.dp),
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            Text("Converted Amount", style = MaterialTheme.typography.labelMedium)
+            Text("Converted Amount", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(6.dp))
             Text(
               text = "${targetCurrency.flag} ${targetCurrency.symbol} ${String.format(java.util.Locale.US, "%,.2f", state.currencySingleOutput)}",
               style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                fontFeatureSettings = "tnum"
               )
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
               text = "1 ${baseCurrency.code} = ${String.format(java.util.Locale.US, "%,.4f", rate1BaseInTarget)} ${targetCurrency.code}",
-              style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+              style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"),
               color = MaterialTheme.colorScheme.onSurface
             )
             Text(
               text = "1 ${targetCurrency.code} = ${String.format(java.util.Locale.US, "%,.4f", rate1TargetInBase)} ${baseCurrency.code}",
-              style = MaterialTheme.typography.labelSmall,
+              style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           }
@@ -560,7 +572,9 @@ private fun CurrencyCalculatorSection(viewModel: UtilityViewModel) {
 
     // Multi-Currency Exchange Rates Board
     Card(
-      shape = RoundedCornerShape(16.dp),
+      shape = RoundedCornerShape(18.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
@@ -657,9 +671,12 @@ private fun CurrencyPickerDialog(
     }
   }
 
+  val semantic = OmniFinCalcThemeTokens.colors
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text(title) },
+    containerColor = MaterialTheme.colorScheme.surface,
+    shape = RoundedCornerShape(22.dp),
+    title = { Text(title, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)) },
     text = {
       Column(
         modifier = Modifier
@@ -673,20 +690,23 @@ private fun CurrencyPickerDialog(
           placeholder = { Text("Search currency...") },
           leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
           singleLine = true,
+          shape = RoundedCornerShape(14.dp),
           modifier = Modifier.fillMaxWidth()
         )
 
         LazyColumn(
           modifier = Modifier.fillMaxSize(),
-          verticalArrangement = Arrangement.spacedBy(4.dp)
+          verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           items(filtered, key = { it.code }, contentType = { "currency_picker_row" }) { curr ->
             val isSelected = curr.code == selectedCode
             Card(
               onClick = { onSelect(curr.code) },
-              shape = RoundedCornerShape(10.dp),
+              shape = RoundedCornerShape(12.dp),
+              border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else semantic.cardBorder),
+              elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
               colors = CardDefaults.cardColors(
-                containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
               ),
               modifier = Modifier.fillMaxWidth()
             ) {
@@ -733,16 +753,24 @@ private fun EditRateDialog(
 
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text("Set Live Rate for ${currency.code}") },
+    containerColor = MaterialTheme.colorScheme.surface,
+    shape = RoundedCornerShape(22.dp),
+    title = {
+      Text(
+        "Set Live Rate for ${currency.code}",
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+      )
+    },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Enter the exact real-time rate per 1 US Dollar (USD):", style = MaterialTheme.typography.bodySmall)
+        Text("Enter the exact real-time rate per 1 US Dollar (USD):", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         OutlinedTextField(
           value = rateStr,
           onValueChange = { rateStr = it.filter { c -> c.isDigit() || c == '.' } },
           label = { Text("1 USD = how many ${currency.code}") },
           prefix = { Text("${currency.symbol} ") },
           singleLine = true,
+          shape = RoundedCornerShape(14.dp),
           modifier = Modifier.fillMaxWidth()
         )
       }
@@ -752,7 +780,8 @@ private fun EditRateDialog(
         onClick = {
           val r = rateStr.toDoubleOrNull() ?: currentRate
           if (r > 0) onSave(currency.code, r)
-        }
+        },
+        shape = RoundedCornerShape(12.dp)
       ) {
         Text("Save Live Rate")
       }
@@ -770,6 +799,7 @@ private fun UnitConverterSection(viewModel: UtilityViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
 
   val availableUnits = when (state.unitCategory) {
     UnitConverter.Category.LENGTH -> UnitConverter.lengthUnits
@@ -780,8 +810,9 @@ private fun UnitConverterSection(viewModel: UtilityViewModel) {
 
   Card(
     shape = RoundedCornerShape(20.dp),
+    border = BorderStroke(1.dp, semantic.cardBorder),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(
@@ -877,24 +908,26 @@ private fun UnitConverterSection(viewModel: UtilityViewModel) {
       // Conversion Result Card (full values)
       Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
         modifier = Modifier.fillMaxWidth()
       ) {
         Column(
           modifier = Modifier.padding(18.dp),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          Text("Converted Result", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text("Converted Result", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
           Spacer(modifier = Modifier.height(4.dp))
           Text(
             text = "${String.format(java.util.Locale.US, "%,.4f", state.unitOutput).trimEnd('0').trimEnd('.')} ${state.toUnit.symbol}",
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
             color = MaterialTheme.colorScheme.primary
           )
           Spacer(modifier = Modifier.height(4.dp))
           Text(
             text = "1 ${state.fromUnit.symbol} = ${String.format(java.util.Locale.US, "%,.4f", UnitConverter.convert(state.unitCategory, 1.0, state.fromUnit, state.toUnit))} ${state.toUnit.symbol}",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
@@ -1106,11 +1139,13 @@ private fun GstTaxSection(viewModel: UtilityViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
 
   Card(
     shape = RoundedCornerShape(20.dp),
+    border = BorderStroke(1.dp, semantic.cardBorder),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(
@@ -1135,7 +1170,7 @@ private fun GstTaxSection(viewModel: UtilityViewModel) {
       }
 
       // Visual Icon Selection Cards for GST Mode (Instead of plain side-by-side buttons)
-      Text("Select Calculation Mode:", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      Text("Select Calculation Mode", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1197,8 +1232,10 @@ private fun GstTaxSection(viewModel: UtilityViewModel) {
 
       Card(
         shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, semantic.cardBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
         ),
         modifier = Modifier.fillMaxWidth()
       ) {
@@ -1207,29 +1244,29 @@ private fun GstTaxSection(viewModel: UtilityViewModel) {
           verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Actual Net Amount:", style = MaterialTheme.typography.bodyMedium)
-            Text(CurrencyFormatter.format(state.gstResult.baseAmount), fontWeight = FontWeight.Bold)
+            Text("Actual Net Amount", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(CurrencyFormatter.format(state.gstResult.baseAmount), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"))
           }
           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Total GST (${state.gstRate.toInt()}%):", style = MaterialTheme.typography.bodyMedium)
-            Text(CurrencyFormatter.format(state.gstResult.gstAmount), fontWeight = FontWeight.Bold, color = Color(0xFF059669))
+            Text("Total GST (${state.gstRate.toInt()}%)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(CurrencyFormatter.format(state.gstResult.gstAmount), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"), color = semantic.income)
           }
           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("• CGST (${state.gstRate / 2}%):", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(CurrencyFormatter.format(state.gstResult.cgstAmount), style = MaterialTheme.typography.bodySmall)
+            Text("• CGST (${state.gstRate / 2}%)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(CurrencyFormatter.format(state.gstResult.cgstAmount), style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"))
           }
           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("• SGST (${state.gstRate / 2}%):", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(CurrencyFormatter.format(state.gstResult.sgstAmount), style = MaterialTheme.typography.bodySmall)
+            Text("• SGST (${state.gstRate / 2}%)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(CurrencyFormatter.format(state.gstResult.sgstAmount), style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"))
           }
 
-          HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+          HorizontalDivider(color = semantic.divider, modifier = Modifier.padding(vertical = 4.dp))
 
           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Final Total Amount:", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            Text("Final Total Amount", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
             Text(
               CurrencyFormatter.format(state.gstResult.finalTotalAmount),
-              style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+              style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
               color = MaterialTheme.colorScheme.primary
             )
           }
@@ -1248,13 +1285,15 @@ fun SelectableIconCard(
   onClick: () -> Unit,
   modifier: Modifier = Modifier
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Card(
     onClick = onClick,
     shape = RoundedCornerShape(14.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     colors = CardDefaults.cardColors(
-      containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+      containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
     ),
-    border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
+    border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.primary else semantic.cardBorder),
     modifier = modifier
   ) {
     Column(
@@ -1267,14 +1306,14 @@ fun SelectableIconCard(
         icon,
         contentDescription = null,
         tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.size(28.dp)
+        modifier = Modifier.size(26.dp)
       )
       Spacer(modifier = Modifier.height(6.dp))
       Text(
         text = title,
         fontWeight = FontWeight.Bold,
         fontSize = 13.sp,
-        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
       )
       Text(
         text = subtitle,

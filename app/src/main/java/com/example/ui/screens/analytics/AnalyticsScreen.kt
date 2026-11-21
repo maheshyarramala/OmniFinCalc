@@ -1,12 +1,15 @@
 package com.example.ui.screens.analytics
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -127,22 +130,30 @@ fun AnalyticsScreen(
     ) {
       // Header + Export actions
       item(key = "analytics_header") {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+              modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp)
+            ) {
               Text(
                 text = "Reports & Analytics",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
               )
               Text(
                 text = state.periodRangeText,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
               )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -150,13 +161,14 @@ fun AnalyticsScreen(
                 onClick = { viewModel.exportCsv(context) },
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, semantic.cardBorder),
                 modifier = Modifier
                   .minimumInteractiveComponentSize()
                   .testTag("analytics_export_csv_btn")
               ) {
                 Icon(Icons.Default.Download, contentDescription = "Export CSV", modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("CSV", style = MaterialTheme.typography.labelMedium)
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("CSV", style = MaterialTheme.typography.labelMedium, maxLines = 1)
               }
               Button(
                 onClick = { viewModel.exportPdf(context) },
@@ -167,8 +179,8 @@ fun AnalyticsScreen(
                   .testTag("analytics_export_pdf_btn")
               ) {
                 Icon(Icons.Default.PictureAsPdf, contentDescription = "Export PDF", modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("PDF", style = MaterialTheme.typography.labelMedium)
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("PDF", style = MaterialTheme.typography.labelMedium, maxLines = 1)
               }
             }
           }
@@ -193,16 +205,26 @@ fun AnalyticsScreen(
                   Text(
                     text = period.label,
                     style = MaterialTheme.typography.labelMedium.copy(
-                      fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                      fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                     )
                   )
                 },
+                shape = RoundedCornerShape(12.dp),
                 leadingIcon = if (period == AnalyticsPeriod.CUSTOM) {
                   { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(16.dp)) }
                 } else null,
                 colors = FilterChipDefaults.filterChipColors(
-                  selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                  selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                  containerColor = MaterialTheme.colorScheme.surface,
+                  labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                  selectedContainerColor = MaterialTheme.colorScheme.primary,
+                  selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                  selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                  enabled = true,
+                  selected = isSelected,
+                  borderColor = semantic.cardBorder,
+                  selectedBorderColor = MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier.testTag("analytics_period_${period.name.lowercase()}")
               )
@@ -215,7 +237,9 @@ fun AnalyticsScreen(
       item(key = "analytics_kpis") {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
           ) {
             FintechMetricTile(
@@ -223,18 +247,24 @@ fun AnalyticsScreen(
               value = CurrencyFormatter.formatWhole(state.periodIncome),
               icon = Icons.AutoMirrored.Filled.TrendingUp,
               accentColor = semantic.income,
-              modifier = Modifier.weight(1f)
+              modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
             )
             FintechMetricTile(
               label = "Period Expenses",
               value = CurrencyFormatter.formatWhole(state.periodExpense),
               icon = Icons.AutoMirrored.Filled.TrendingDown,
               accentColor = semantic.expense,
-              modifier = Modifier.weight(1f)
+              modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
             )
           }
           Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(IntrinsicSize.Max),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
           ) {
             FintechMetricTile(
@@ -243,7 +273,9 @@ fun AnalyticsScreen(
               subtitle = String.format(Locale.US, "%.1f%% savings rate", state.savingsRatePercent),
               icon = Icons.Default.Savings,
               accentColor = if (state.netSavings >= 0.0) semantic.savings else semantic.expense,
-              modifier = Modifier.weight(1f)
+              modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
             )
             FintechMetricTile(
               label = "Liquid Balance",
@@ -251,7 +283,9 @@ fun AnalyticsScreen(
               subtitle = "${state.filteredTransactions.size} entries in range",
               icon = Icons.Default.AccountBalanceWallet,
               accentColor = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.weight(1f)
+              modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
             )
           }
         }
@@ -682,8 +716,8 @@ private fun AnalyticsTransactionRow(tx: ExpenseRecord) {
     ) {
       Box(
         modifier = Modifier
-          .size(38.dp)
-          .clip(CircleShape)
+          .size(40.dp)
+          .clip(RoundedCornerShape(12.dp))
           .background(badgeColor.copy(alpha = 0.14f)),
         contentAlignment = Alignment.Center
       ) {
@@ -788,9 +822,16 @@ private fun CustomDateRangeDialog(
     }
   }
 
+  val semantic = OmniFinCalcThemeTokens.colors
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text("Custom Date Range", style = MaterialTheme.typography.titleLarge) },
+    containerColor = MaterialTheme.colorScheme.surface,
+    title = {
+      Text(
+        "Custom Date Range",
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+      )
+    },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
@@ -800,8 +841,9 @@ private fun CustomDateRangeDialog(
         )
         Surface(
           onClick = { pickingStart = true },
-          shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+          shape = RoundedCornerShape(14.dp),
+          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+          border = BorderStroke(1.dp, semantic.cardBorder),
           modifier = Modifier.fillMaxWidth()
         ) {
           Row(
@@ -811,17 +853,25 @@ private fun CustomDateRangeDialog(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Text("Start Date", style = MaterialTheme.typography.labelLarge)
+            Text("Start Date", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-              Text(startDate.format(fmt), fontWeight = FontWeight.Bold)
-              Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
+              Text(
+                startDate.format(fmt),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+              )
+              Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
             }
           }
         }
         Surface(
           onClick = { pickingEnd = true },
-          shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+          shape = RoundedCornerShape(14.dp),
+          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+          border = BorderStroke(1.dp, semantic.cardBorder),
           modifier = Modifier.fillMaxWidth()
         ) {
           Row(
@@ -831,23 +881,33 @@ private fun CustomDateRangeDialog(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Text("End Date", style = MaterialTheme.typography.labelLarge)
+            Text("End Date", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-              Text(endDate.format(fmt), fontWeight = FontWeight.Bold)
-              Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
+              Text(
+                endDate.format(fmt),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+              )
+              Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
             }
           }
         }
       }
     },
     confirmButton = {
-      Button(onClick = { onApply(startDate, endDate) }) {
+      Button(
+        onClick = { onApply(startDate, endDate) },
+        shape = RoundedCornerShape(12.dp)
+      ) {
         Text("Apply Range")
       }
     },
     dismissButton = {
       TextButton(onClick = onDismiss) { Text("Cancel") }
     },
-    shape = RoundedCornerShape(20.dp)
+    shape = RoundedCornerShape(22.dp)
   )
 }

@@ -30,6 +30,7 @@ import com.example.ui.components.*
 import com.example.ui.theme.ChartInterest
 import com.example.ui.theme.ChartPrincipal
 import com.example.ui.theme.ChartWealthGain
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import com.example.ui.theme.performConfiguredHapticFeedback
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,29 +71,58 @@ fun TaxSalaryScreen(
     ) {
       // Top Tab Selector
       item {
-        ScrollableTabRow(
-          selectedTabIndex = state.selectedTab.ordinal,
-          edgePadding = 0.dp,
-          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-          modifier = Modifier.fillMaxWidth().testTag("tax_salary_tabs")
+        val semantic = OmniFinCalcThemeTokens.colors
+        Surface(
+          shape = RoundedCornerShape(14.dp),
+          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          modifier = Modifier
+            .fillMaxWidth()
+            .testTag("tax_salary_tabs")
         ) {
-          TaxSalaryTab.values().forEach { tab ->
-            val icon = if (tab == TaxSalaryTab.INCOME_TAX) Icons.Default.ReceiptLong else Icons.Default.AccountBalanceWallet
-            Tab(
-              selected = state.selectedTab == tab,
-              onClick = {
-                haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                viewModel.selectTab(tab)
-              },
-              icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-              text = {
-                Text(
-                  text = tab.title,
-                  fontWeight = if (state.selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
-                  fontSize = 12.sp
-                )
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+          ) {
+            TaxSalaryTab.values().forEach { tab ->
+              val isSelected = state.selectedTab == tab
+              val icon = if (tab == TaxSalaryTab.INCOME_TAX) Icons.Default.ReceiptLong else Icons.Default.AccountBalanceWallet
+              Surface(
+                onClick = {
+                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                  viewModel.selectTab(tab)
+                },
+                shape = RoundedCornerShape(10.dp),
+                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                modifier = Modifier.weight(1f)
+              ) {
+                Row(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp, horizontal = 8.dp),
+                  horizontalArrangement = Arrangement.Center,
+                  verticalAlignment = Alignment.CenterVertically
+                ) {
+                  Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                  )
+                  Spacer(modifier = Modifier.width(6.dp))
+                  Text(
+                    text = tab.title,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                      fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    ),
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                  )
+                }
               }
-            )
+            }
           }
         }
       }
@@ -170,14 +200,16 @@ internal fun IncomeTaxSection(
   onShare: () -> Unit
 ) {
   var showDeductions by remember { mutableStateOf(true) }
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.taxResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     // Inputs Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
@@ -298,10 +330,13 @@ internal fun IncomeTaxSection(
 
     // Recommendation Banner
     val isNewRecommended = res.recommendedRegime == "New Regime"
-    val bannerBg = if (isNewRecommended) Color(0xFF10B981) else Color(0xFF6366F1)
+    val bannerAccent = if (isNewRecommended) semantic.income else MaterialTheme.colorScheme.primary
+    val bannerContainer = if (isNewRecommended) semantic.incomeContainer else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
     Card(
-      shape = RoundedCornerShape(16.dp),
-      colors = CardDefaults.cardColors(containerColor = bannerBg),
+      shape = RoundedCornerShape(18.dp),
+      border = BorderStroke(1.dp, bannerAccent.copy(alpha = 0.3f)),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = bannerContainer),
       modifier = Modifier.fillMaxWidth()
     ) {
       Row(
@@ -312,22 +347,21 @@ internal fun IncomeTaxSection(
         Box(
           modifier = Modifier
             .size(40.dp)
-            .background(Color.White.copy(alpha = 0.25f), CircleShape),
+            .background(bannerAccent.copy(alpha = 0.18f), RoundedCornerShape(12.dp)),
           contentAlignment = Alignment.Center
         ) {
-          Icon(Icons.Default.Verified, contentDescription = null, tint = Color.White)
+          Icon(Icons.Default.Verified, contentDescription = null, tint = bannerAccent)
         }
         Column(modifier = Modifier.weight(1f)) {
           Text(
             text = "Recommendation: ${res.recommendedRegime}",
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White,
-            fontSize = 15.sp
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+            color = bannerAccent
           )
           Text(
             text = res.recommendationSummary,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.95f)
+            style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+            color = MaterialTheme.colorScheme.onSurface
           )
         }
       }
@@ -335,7 +369,9 @@ internal fun IncomeTaxSection(
 
     // Side-by-side comparison cards
     Row(
-      modifier = Modifier.fillMaxWidth(),
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(IntrinsicSize.Max),
       horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
       // New Regime Card
@@ -343,7 +379,9 @@ internal fun IncomeTaxSection(
         title = "New Regime",
         isWinner = isNewRecommended,
         breakdown = res.newRegime,
-        modifier = Modifier.weight(1f)
+        modifier = Modifier
+          .weight(1f)
+          .fillMaxHeight()
       )
 
       // Old Regime Card
@@ -351,26 +389,29 @@ internal fun IncomeTaxSection(
         title = "Old Regime",
         isWinner = !isNewRecommended && res.recommendedRegime != "Equal Tax",
         breakdown = res.oldRegime,
-        modifier = Modifier.weight(1f)
+        modifier = Modifier
+          .weight(1f)
+          .fillMaxHeight()
       )
     }
 
     // Detailed Comparison Table
     Card(
-      shape = RoundedCornerShape(16.dp),
+      shape = RoundedCornerShape(18.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Detailed Tax Breakdown", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        Text("Detailed Tax Breakdown", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
         ComparisonRow("Standard Deduction", "₹75,000", "₹50,000")
-        ComparisonRow("Investments / 80C/80D", "₹0 (No deduction)", CurrencyFormatter.format(res.oldRegime.otherDeductions))
+        ComparisonRow("Investments / 80C/80D", "₹0 (None)", CurrencyFormatter.format(res.oldRegime.otherDeductions))
         ComparisonRow("Taxable Income", CurrencyFormatter.format(res.newRegime.taxableIncome), CurrencyFormatter.format(res.oldRegime.taxableIncome))
         ComparisonRow("Base Slab Tax", CurrencyFormatter.format(res.newRegime.slabTax), CurrencyFormatter.format(res.oldRegime.slabTax))
         ComparisonRow("87A Rebate", "- ${CurrencyFormatter.format(res.newRegime.rebate87A)}", "- ${CurrencyFormatter.format(res.oldRegime.rebate87A)}")
         ComparisonRow("Health & Edu Cess (4%)", CurrencyFormatter.format(res.newRegime.cess), CurrencyFormatter.format(res.oldRegime.cess))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        HorizontalDivider(color = semantic.divider)
         ComparisonRow("Total Tax Payable", CurrencyFormatter.format(res.newRegime.totalTaxPayable), CurrencyFormatter.format(res.oldRegime.totalTaxPayable), isBold = true)
         ComparisonRow("Effective Tax Rate", String.format(java.util.Locale.US, "%.1f%%", res.newRegime.effectiveTaxRate), String.format(java.util.Locale.US, "%.1f%%", res.oldRegime.effectiveTaxRate))
       }
@@ -383,6 +424,8 @@ internal fun IncomeTaxSection(
     ) {
       OutlinedButton(
         onClick = onShare,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, semantic.cardBorder),
         modifier = Modifier.weight(1f)
       ) {
         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -391,6 +434,7 @@ internal fun IncomeTaxSection(
       }
       Button(
         onClick = onSave,
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier.weight(1f)
       ) {
         Icon(Icons.Default.BookmarkBorder, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -408,12 +452,14 @@ private fun RegimeCard(
   breakdown: IncomeTaxCalculator.RegimeTaxBreakdown,
   modifier: Modifier = Modifier
 ) {
-  val borderColor = if (isWinner) Color(0xFF10B981) else MaterialTheme.colorScheme.outlineVariant
-  val containerColor = if (isWinner) Color(0xFF10B981).copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
+  val semantic = OmniFinCalcThemeTokens.colors
+  val borderColor = if (isWinner) semantic.income else semantic.cardBorder
+  val containerColor = if (isWinner) semantic.incomeContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface
 
   Card(
-    shape = RoundedCornerShape(16.dp),
-    border = BorderStroke(if (isWinner) 2.dp else 1.dp, borderColor),
+    shape = RoundedCornerShape(18.dp),
+    border = BorderStroke(if (isWinner) 1.5.dp else 1.dp, borderColor),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     colors = CardDefaults.cardColors(containerColor = containerColor),
     modifier = modifier
   ) {
@@ -424,22 +470,24 @@ private fun RegimeCard(
     ) {
       if (isWinner) {
         Surface(
-          shape = RoundedCornerShape(8.dp),
-          color = Color(0xFF10B981),
+          shape = RoundedCornerShape(99.dp),
+          color = semantic.income,
           contentColor = Color.White
         ) {
-          Text("RECOMMENDED", fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+          Text("RECOMMENDED", fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
         }
       } else {
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
       }
 
-      Text(title, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+      Text(title, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
       Text(
         text = CurrencyFormatter.format(breakdown.totalTaxPayable),
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 18.sp,
-        color = if (isWinner) Color(0xFF059669) else MaterialTheme.colorScheme.onSurface
+        style = MaterialTheme.typography.titleMedium.copy(
+          fontWeight = FontWeight.ExtraBold,
+          fontFeatureSettings = "tnum"
+        ),
+        color = if (isWinner) semantic.income else MaterialTheme.colorScheme.onSurface
       )
       Text(
         text = "Tax Payable",
@@ -447,15 +495,21 @@ private fun RegimeCard(
         color = MaterialTheme.colorScheme.onSurfaceVariant
       )
 
-      HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+      HorizontalDivider(color = semantic.divider)
 
       Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text("Taxable", style = MaterialTheme.typography.labelSmall)
-        Text(CurrencyFormatter.formatCompact(breakdown.taxableIncome), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+        Text("Taxable", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+          CurrencyFormatter.formatCompact(breakdown.taxableIncome),
+          style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum")
+        )
       }
       Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text("Rate", style = MaterialTheme.typography.labelSmall)
-        Text(String.format(java.util.Locale.US, "%.1f%%", breakdown.effectiveTaxRate), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+        Text("Rate", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+          String.format(java.util.Locale.US, "%.1f%%", breakdown.effectiveTaxRate),
+          style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum")
+        )
       }
     }
   }
@@ -468,6 +522,7 @@ private fun ComparisonRow(
   oldVal: String,
   isBold: Boolean = false
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Row(
     modifier = Modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.SpaceBetween,
@@ -477,20 +532,25 @@ private fun ComparisonRow(
       text = label,
       style = MaterialTheme.typography.bodySmall,
       fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+      color = if (isBold) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.weight(1.3f)
     )
     Text(
       text = newVal,
-      style = MaterialTheme.typography.bodySmall,
-      fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold,
-      color = if (isBold) Color(0xFF059669) else MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.bodySmall.copy(
+        fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold,
+        fontFeatureSettings = "tnum"
+      ),
+      color = if (isBold) semantic.income else MaterialTheme.colorScheme.onSurface,
       modifier = Modifier.weight(1f),
       textAlign = TextAlign.End
     )
     Text(
       text = oldVal,
-      style = MaterialTheme.typography.bodySmall,
-      fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+      style = MaterialTheme.typography.bodySmall.copy(
+        fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal,
+        fontFeatureSettings = "tnum"
+      ),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.weight(1f),
       textAlign = TextAlign.End
@@ -505,21 +565,23 @@ internal fun SalaryBreakdownSection(
   onSave: () -> Unit,
   onShare: () -> Unit
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val s = state.salaryResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     // Inputs Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
       ) {
-        Text("Enter Annual CTC (Cost to Company)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+        Text("Enter Annual CTC (Cost to Company)", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
 
         NumberInputField(
           value = state.salaryAnnualCtc,
@@ -543,12 +605,12 @@ internal fun SalaryBreakdownSection(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text("TDS Tax Regime:", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+          Text("TDS Tax Regime", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
           Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             FilterChip(
               selected = state.salaryRegime == "New Regime",
               onClick = { viewModel.updateSalaryInputs(regime = "New Regime") },
-              label = { Text("New Regime (75k Ded)", fontSize = 11.sp) }
+              label = { Text("New (75k Ded)", fontSize = 11.sp) }
             )
             FilterChip(
               selected = state.salaryRegime == "Old Regime",
@@ -563,37 +625,40 @@ internal fun SalaryBreakdownSection(
     // Hero Monthly In-Hand Card
     Card(
       shape = RoundedCornerShape(20.dp),
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
         modifier = Modifier.padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
       ) {
-        Text("Estimated Monthly In-Hand Take-Home", style = MaterialTheme.typography.labelMedium)
+        Text("Estimated Monthly In-Hand Take-Home", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
           text = CurrencyFormatter.format(s.monthlyInHand),
           style = MaterialTheme.typography.headlineLarge.copy(
             fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
           )
         )
         Text(
           text = "Annual Take-Home: ${CurrencyFormatter.format(s.annualInHand)}",
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Visual Donut Chart showing Monthly Breakdown
         DonutChart(
           slices = listOf(
-            ChartSlice("Net Take-Home", s.monthlyInHand, Color(0xFF10B981)),
-            ChartSlice("Income Tax TDS", s.monthlyTds, Color(0xFFEF4444)),
-            ChartSlice("Employee PF", s.monthlyEpf, Color(0xFF3B82F6)),
-            ChartSlice("Prof Tax & Misc", s.monthlyProfessionalTax, Color(0xFFF59E0B))
+            ChartSlice("Net Take-Home", s.monthlyInHand, semantic.income),
+            ChartSlice("Income Tax TDS", s.monthlyTds, semantic.expense),
+            ChartSlice("Employee PF", s.monthlyEpf, MaterialTheme.colorScheme.primary),
+            ChartSlice("Prof Tax & Misc", s.monthlyProfessionalTax, semantic.warning)
           ),
           centerTitle = CurrencyFormatter.formatCompact(s.monthlyInHand),
           centerSubtitle = "Take-Home",
@@ -604,16 +669,17 @@ internal fun SalaryBreakdownSection(
 
     // Itemized Monthly Pay Slip Breakdown
     Card(
-      shape = RoundedCornerShape(16.dp),
+      shape = RoundedCornerShape(18.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
       ) {
-        Text("Monthly Pay Slip Breakdown", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        Text("Monthly Pay Slip Breakdown", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
 
         Text("GROSS EARNINGS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         BreakdownRow("Basic Salary (40% of CTC)", CurrencyFormatter.format(s.monthlyBasic))
@@ -621,15 +687,15 @@ internal fun SalaryBreakdownSection(
         BreakdownRow("Special / Other Allowance", CurrencyFormatter.format(s.monthlySpecialAllowance))
         BreakdownRow("Gross Monthly Salary", CurrencyFormatter.format(s.monthlyGrossSalary), isBold = true)
 
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        HorizontalDivider(color = semantic.divider)
 
-        Text("DEDUCTIONS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFFEF4444))
+        Text("DEDUCTIONS", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = semantic.expense)
         BreakdownRow("Employee Provident Fund (EPF 12%)", "- ${CurrencyFormatter.format(s.monthlyEpf)}")
         BreakdownRow("Professional Tax (PT)", "- ${CurrencyFormatter.format(s.monthlyProfessionalTax)}")
         BreakdownRow("Income Tax (TDS estimate)", "- ${CurrencyFormatter.format(s.monthlyTds)}")
         BreakdownRow("Total Monthly Deductions", "- ${CurrencyFormatter.format(s.monthlyTotalDeductions)}", isBold = true, isRed = true)
 
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        HorizontalDivider(color = semantic.divider)
 
         BreakdownRow(
           label = "NET MONTHLY TAKE-HOME",
@@ -647,6 +713,8 @@ internal fun SalaryBreakdownSection(
     ) {
       OutlinedButton(
         onClick = onShare,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, semantic.cardBorder),
         modifier = Modifier.weight(1f)
       ) {
         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -655,6 +723,7 @@ internal fun SalaryBreakdownSection(
       }
       Button(
         onClick = onSave,
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier.weight(1f)
       ) {
         Icon(Icons.Default.BookmarkBorder, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -673,6 +742,7 @@ private fun BreakdownRow(
   isRed: Boolean = false,
   isHighlight: Boolean = false
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Row(
     modifier = Modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.SpaceBetween,
@@ -686,11 +756,13 @@ private fun BreakdownRow(
     )
     Text(
       text = value,
-      style = MaterialTheme.typography.bodySmall,
-      fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold,
+      style = MaterialTheme.typography.bodySmall.copy(
+        fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold,
+        fontFeatureSettings = "tnum"
+      ),
       color = when {
         isHighlight -> MaterialTheme.colorScheme.primary
-        isRed -> Color(0xFFEF4444)
+        isRed -> semantic.expense
         else -> MaterialTheme.colorScheme.onSurface
       }
     )

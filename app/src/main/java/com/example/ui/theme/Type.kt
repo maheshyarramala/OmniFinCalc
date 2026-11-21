@@ -75,28 +75,32 @@ val Typography = Typography(
     fontWeight = FontWeight.SemiBold,
     fontSize = 19.sp,
     lineHeight = 25.sp,
-    letterSpacing = (-0.15).sp
+    letterSpacing = (-0.15).sp,
+    fontFeatureSettings = "tnum"
   ),
   titleLarge = TextStyle(
     fontFamily = DisplayFontFamily,
     fontWeight = FontWeight.Bold,
     fontSize = 18.sp,
     lineHeight = 24.sp,
-    letterSpacing = (-0.1).sp
+    letterSpacing = (-0.15).sp,
+    fontFeatureSettings = "tnum"
   ),
   titleMedium = TextStyle(
     fontFamily = DisplayFontFamily,
     fontWeight = FontWeight.SemiBold,
     fontSize = 15.sp,
     lineHeight = 21.sp,
-    letterSpacing = 0.sp
+    letterSpacing = 0.sp,
+    fontFeatureSettings = "tnum"
   ),
   titleSmall = TextStyle(
     fontFamily = BodyFontFamily,
     fontWeight = FontWeight.SemiBold,
     fontSize = 13.sp,
     lineHeight = 18.sp,
-    letterSpacing = 0.1.sp
+    letterSpacing = 0.1.sp,
+    fontFeatureSettings = "tnum"
   ),
   bodyLarge = TextStyle(
     fontFamily = BodyFontFamily,

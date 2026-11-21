@@ -19,12 +19,12 @@ enum class AccentTheme(
   val primaryLight: Color,
   val primaryDark: Color
 ) {
-  INDIGO("Electric Blue", Color(0xFF3478F6), Color(0xFF60A5FA)),
-  EMERALD("Wealth Green", Color(0xFF059669), Color(0xFF34D399)),
-  PURPLE("Royal Violet", Color(0xFF7C3AED), Color(0xFFA78BFA)),
-  AMBER("Gold Amber", Color(0xFFD97706), Color(0xFFFBBF24)),
-  ROSE("Coral Rose", Color(0xFFE11D48), Color(0xFFFB7185)),
-  CYAN("Fintech Teal", Color(0xFF0D9488), Color(0xFF2DD4BF))
+  INDIGO("Electric Blue", Color(0xFF3478F6), Color(0xFF5B96FF)),
+  EMERALD("Wealth Green", Color(0xFF16A879), Color(0xFF35C99A)),
+  PURPLE("Royal Violet", Color(0xFF6B5CE7), Color(0xFF9F94FF)),
+  AMBER("Gold Amber", Color(0xFFE7A33E), Color(0xFFF0B44C)),
+  ROSE("Coral Rose", Color(0xFFE56B70), Color(0xFFF17B83)),
+  CYAN("Fintech Teal", Color(0xFF0E9F82), Color(0xFF35C99A))
 }
 
 enum class HapticStrength(val title: String) {

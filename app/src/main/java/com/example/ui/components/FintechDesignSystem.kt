@@ -142,21 +142,21 @@ fun FintechMetricTile(
     ) {
       Box(
         modifier = Modifier
-          .size(32.dp)
-          .clip(RoundedCornerShape(10.dp))
-          .background(accentColor.copy(alpha = 0.14f)),
+          .size(30.dp)
+          .clip(RoundedCornerShape(9.dp))
+          .background(accentColor.copy(alpha = 0.12f)),
         contentAlignment = Alignment.Center
       ) {
         Icon(
           imageVector = icon,
           contentDescription = null,
           tint = accentColor,
-          modifier = Modifier.size(18.dp)
+          modifier = Modifier.size(16.dp)
         )
       }
       Text(
         text = label,
-        style = MaterialTheme.typography.labelMedium,
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -174,10 +174,10 @@ fun FintechMetricTile(
       overflow = TextOverflow.Ellipsis
     )
     if (!subtitle.isNullOrBlank()) {
-      Spacer(modifier = Modifier.height(2.dp))
+      Spacer(modifier = Modifier.height(3.dp))
       Text(
         text = subtitle,
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
         color = accentColor,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis
@@ -200,7 +200,10 @@ fun FintechStatusPill(
   ) {
     Text(
       text = text,
-      style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+      style = MaterialTheme.typography.labelSmall.copy(
+        fontWeight = FontWeight.SemiBold,
+        fontFeatureSettings = "tnum"
+      ),
       color = textColor,
       maxLines = 1,
       overflow = TextOverflow.Ellipsis,
@@ -229,16 +232,16 @@ fun FintechQuickActionButton(
   ) {
     Surface(
       shape = RoundedCornerShape(14.dp),
-      color = accentColor.copy(alpha = 0.13f),
-      border = BorderStroke(1.dp, accentColor.copy(alpha = 0.22f)),
-      modifier = Modifier.size(48.dp)
+      color = accentColor.copy(alpha = 0.11f),
+      border = BorderStroke(1.dp, accentColor.copy(alpha = 0.18f)),
+      modifier = Modifier.size(46.dp)
     ) {
       Box(contentAlignment = Alignment.Center) {
         Icon(
           imageVector = icon,
           contentDescription = label,
           tint = accentColor,
-          modifier = Modifier.size(22.dp)
+          modifier = Modifier.size(20.dp)
         )
       }
     }
@@ -283,7 +286,7 @@ fun FintechEmptyState(
           imageVector = icon,
           contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.size(26.dp)
+          modifier = Modifier.size(24.dp)
         )
       }
       Text(
@@ -325,10 +328,13 @@ fun FintechConfirmationDialog(
   val semantic = OmniFinCalcThemeTokens.colors
   AlertDialog(
     onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surface,
+    titleContentColor = MaterialTheme.colorScheme.onSurface,
+    textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     title = {
       Text(
         text = title,
-        style = MaterialTheme.typography.titleLarge
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
       )
     },
     text = {
@@ -349,7 +355,7 @@ fun FintechConfirmationDialog(
         } else {
           ButtonDefaults.buttonColors()
         },
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier.testTag("confirm_dialog_button")
       ) {
         Text(confirmLabel, fontWeight = FontWeight.SemiBold)
@@ -360,9 +366,9 @@ fun FintechConfirmationDialog(
         onClick = onDismiss,
         modifier = Modifier.testTag("dismiss_dialog_button")
       ) {
-        Text(dismissLabel)
+        Text(dismissLabel, fontWeight = FontWeight.Medium)
       }
     },
-    shape = RoundedCornerShape(20.dp)
+    shape = RoundedCornerShape(22.dp)
   )
 }

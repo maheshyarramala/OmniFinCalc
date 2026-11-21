@@ -28,6 +28,7 @@ import com.example.domain.calculator.InvestmentCalculators
 import com.example.ui.components.*
 import com.example.ui.theme.ChartInvested
 import com.example.ui.theme.ChartWealthGain
+import com.example.ui.theme.OmniFinCalcThemeTokens
 
 @Composable
 private fun TradeChargeRow(label: String, value: String, isBold: Boolean = false) {
@@ -46,7 +47,8 @@ private fun TradeChargeRow(label: String, value: String, isBold: Boolean = false
     Text(
       text = value,
       style = MaterialTheme.typography.bodySmall.copy(
-        fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold
+        fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold,
+        fontFeatureSettings = "tnum"
       ),
       color = MaterialTheme.colorScheme.onSurface
     )
@@ -127,50 +129,64 @@ fun InvestmentScreen(
     ) {
       // Top Tab Selector
       item {
-        ScrollableTabRow(
-          selectedTabIndex = state.selectedTab.ordinal,
-          edgePadding = 0.dp,
-          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-          modifier = Modifier
-            .fillMaxWidth()
-            .testTag("investment_tabs")
+        val semantic = OmniFinCalcThemeTokens.colors
+        Surface(
+          shape = RoundedCornerShape(14.dp),
+          color = MaterialTheme.colorScheme.surface,
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          modifier = Modifier.fillMaxWidth()
         ) {
-          InvestmentTab.values().forEach { tab ->
-            val icon = when (tab) {
-              InvestmentTab.SIP -> Icons.AutoMirrored.Filled.TrendingUp
-              InvestmentTab.STEP_UP_SIP -> Icons.Default.TrendingUp
-              InvestmentTab.GOAL_PLANNER -> Icons.Default.TrackChanges
-              InvestmentTab.LUMPSUM -> Icons.Default.Payments
-              InvestmentTab.COMPOUND -> Icons.Default.Percent
-              InvestmentTab.PPF -> Icons.Default.AccountBalance
-              InvestmentTab.FD -> Icons.Default.Savings
-              InvestmentTab.TRADE -> Icons.AutoMirrored.Filled.TrendingUp
-            }
-            Tab(
-              selected = state.selectedTab == tab,
-              onClick = {
-                haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                viewModel.selectTab(tab)
-              },
-              icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-              text = {
-                Text(
-                  text = tab.title,
-                  fontWeight = if (state.selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
-                  fontSize = 11.sp
-                )
+          ScrollableTabRow(
+            selectedTabIndex = state.selectedTab.ordinal,
+            edgePadding = 4.dp,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary,
+            divider = {},
+            modifier = Modifier
+              .fillMaxWidth()
+              .testTag("investment_tabs")
+          ) {
+            InvestmentTab.values().forEach { tab ->
+              val icon = when (tab) {
+                InvestmentTab.SIP -> Icons.AutoMirrored.Filled.TrendingUp
+                InvestmentTab.STEP_UP_SIP -> Icons.Default.TrendingUp
+                InvestmentTab.GOAL_PLANNER -> Icons.Default.TrackChanges
+                InvestmentTab.LUMPSUM -> Icons.Default.Payments
+                InvestmentTab.COMPOUND -> Icons.Default.Percent
+                InvestmentTab.PPF -> Icons.Default.AccountBalance
+                InvestmentTab.FD -> Icons.Default.Savings
+                InvestmentTab.TRADE -> Icons.AutoMirrored.Filled.TrendingUp
               }
-            )
+              Tab(
+                selected = state.selectedTab == tab,
+                onClick = {
+                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                  viewModel.selectTab(tab)
+                },
+                selectedContentColor = MaterialTheme.colorScheme.primary,
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                text = {
+                  Text(
+                    text = tab.title,
+                    fontWeight = if (state.selectedTab == tab) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = 11.sp
+                  )
+                }
+              )
+            }
           }
         }
       }
 
       // Input Form for Active Investment Tab
       item {
+        val semantic = OmniFinCalcThemeTokens.colors
         Card(
           shape = RoundedCornerShape(20.dp),
+          border = BorderStroke(1.dp, semantic.cardBorder),
           colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-          elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(
@@ -300,21 +316,24 @@ fun InvestmentScreen(
 
                 // Comparison info banner
                 Surface(
-                  shape = RoundedCornerShape(12.dp),
-                  color = Color(0xFF10B981).copy(alpha = 0.12f),
+                  shape = RoundedCornerShape(14.dp),
+                  color = semantic.incomeContainer,
+                  border = BorderStroke(1.dp, semantic.income.copy(alpha = 0.25f)),
                   modifier = Modifier.fillMaxWidth()
                 ) {
                   Row(
                     modifier = Modifier.padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                   ) {
-                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF059669), modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = semantic.income, modifier = Modifier.size(20.dp))
                     Text(
-                      text = "Step-up generates ${String.format(java.util.Locale.US, "%.0f%%", state.stepUpResult.wealthBoostPercentage)} higher wealth than a flat SIP! Ending monthly SIP: ${CurrencyFormatter.format(state.stepUpResult.finalMonthlySip)}.",
-                      style = MaterialTheme.typography.bodySmall,
-                      color = Color(0xFF047857),
-                      fontWeight = FontWeight.SemiBold
+                      text = "Step-up generates ${String.format(java.util.Locale.US, "%.0f%%", state.stepUpResult.wealthBoostPercentage)} higher wealth than a flat SIP. Ending monthly SIP: ${CurrencyFormatter.format(state.stepUpResult.finalMonthlySip)}.",
+                      style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontFeatureSettings = "tnum"
+                      ),
+                      color = MaterialTheme.colorScheme.onSurface
                     )
                   }
                 }
@@ -360,26 +379,32 @@ fun InvestmentScreen(
 
                 // Required Monthly SIP Hero Highlight
                 Surface(
-                  shape = RoundedCornerShape(12.dp),
-                  color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                  shape = RoundedCornerShape(14.dp),
+                  color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                  border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)),
                   modifier = Modifier.fillMaxWidth()
                 ) {
                   Column(
                     modifier = Modifier.padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                   ) {
-                    Text("Required Monthly SIP to Hit Target", style = MaterialTheme.typography.labelSmall)
+                    Text(
+                      "Required Monthly SIP to Hit Target",
+                      style = MaterialTheme.typography.labelSmall,
+                      color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Text(
                       text = "${CurrencyFormatter.format(state.goalResult.requiredMonthlySip)} / month",
                       style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFeatureSettings = "tnum"
                       )
                     )
                     Text(
-                      text = "You will invest a total of ${CurrencyFormatter.format(state.goalResult.totalInvested)}, and market returns will create ${CurrencyFormatter.format(state.goalResult.wealthCreatedByReturns)} in wealth!",
-                      style = MaterialTheme.typography.bodySmall,
-                      color = MaterialTheme.colorScheme.onPrimaryContainer
+                      text = "Total invested: ${CurrencyFormatter.format(state.goalResult.totalInvested)} • Market returns: ${CurrencyFormatter.format(state.goalResult.wealthCreatedByReturns)}",
+                      style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+                      color = MaterialTheme.colorScheme.onSurface
                     )
                   }
                 }
@@ -596,29 +621,18 @@ fun InvestmentScreen(
       // Output Results & Donut Chart
       if (state.selectedTab == InvestmentTab.TRADE) {
         item {
+          val semantic = OmniFinCalcThemeTokens.colors
           val isProfit = tradeResult.netPnl >= 0.0
-          val profitGreen = Color(0xFF10B981)
-          val lossRed = Color(0xFFEF4444)
+          val accent = if (isProfit) semantic.income else semantic.expense
           Card(
             shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             colors = CardDefaults.cardColors(
-              containerColor = if (!isTradeInputValid) {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-              } else if (isProfit) {
-                profitGreen.copy(alpha = 0.1f)
-              } else {
-                lossRed.copy(alpha = 0.1f)
-              }
+              containerColor = MaterialTheme.colorScheme.surface
             ),
             border = BorderStroke(
               1.dp,
-              if (!isTradeInputValid) {
-                MaterialTheme.colorScheme.outlineVariant
-              } else if (isProfit) {
-                profitGreen.copy(alpha = 0.35f)
-              } else {
-                lossRed.copy(alpha = 0.35f)
-              }
+              if (!isTradeInputValid) semantic.cardBorder else accent.copy(alpha = 0.35f)
             ),
             modifier = Modifier.fillMaxWidth()
           ) {
@@ -627,21 +641,22 @@ fun InvestmentScreen(
                 text = if (!isTradeInputValid) "ENTER VALID TRADE DETAILS"
                   else if (isProfit) "ESTIMATED NET PROFIT" else "ESTIMATED NET LOSS",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = if (!isTradeInputValid) MaterialTheme.colorScheme.onSurfaceVariant
-                  else if (isProfit) profitGreen else lossRed
+                color = if (!isTradeInputValid) MaterialTheme.colorScheme.onSurfaceVariant else accent
               )
               if (isTradeInputValid) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                   text = CurrencyFormatter.format(tradeResult.netPnl),
                   style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 32.sp
+                    fontSize = 32.sp,
+                    fontFeatureSettings = "tnum"
                   ),
-                  color = if (isProfit) profitGreen else lossRed
+                  color = accent
                 )
               }
               Spacer(modifier = Modifier.height(14.dp))
-              HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+              HorizontalDivider(color = semantic.divider)
               Spacer(modifier = Modifier.height(14.dp))
 
               if (isTradeInputValid) {
@@ -656,7 +671,7 @@ fun InvestmentScreen(
                   TradeChargeRow("DP Charges", CurrencyFormatter.format(tradeResult.dpCharge))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(color = semantic.divider)
                 Spacer(modifier = Modifier.height(10.dp))
                 TradeChargeRow(
                   "Total Government & Broker Charges",
@@ -679,10 +694,13 @@ fun InvestmentScreen(
           }
         }
       } else item {
+        val semantic = OmniFinCalcThemeTokens.colors
         Card(
           shape = RoundedCornerShape(20.dp),
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
           colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF10B981).copy(alpha = 0.08f)
+            containerColor = MaterialTheme.colorScheme.surface
           ),
           modifier = Modifier.fillMaxWidth()
         ) {
@@ -692,16 +710,18 @@ fun InvestmentScreen(
           ) {
             Text(
               text = "Total Maturity Value",
-              style = MaterialTheme.typography.titleSmall,
+              style = MaterialTheme.typography.labelLarge,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
               text = CurrencyFormatter.format(state.result.totalValue),
               style = MaterialTheme.typography.headlineLarge.copy(
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 32.sp
+                fontSize = 32.sp,
+                fontFeatureSettings = "tnum"
               ),
-              color = Color(0xFF059669)
+              color = semantic.income
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -717,45 +737,60 @@ fun InvestmentScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            HorizontalDivider(color = semantic.divider)
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-              modifier = Modifier.fillMaxWidth(),
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
               horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
               Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier.weight(1f)
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, semantic.cardBorder),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
               ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                   Text("Total Invested", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                   Spacer(modifier = Modifier.height(4.dp))
                   Text(
                     text = CurrencyFormatter.format(state.result.investedAmount),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                      fontWeight = FontWeight.Bold,
+                      fontFeatureSettings = "tnum"
+                    ),
                     color = ChartInvested
                   )
                 }
               }
 
               Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier.weight(1f)
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, semantic.cardBorder),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
               ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                   Text("Est. Returns", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                   Spacer(modifier = Modifier.height(4.dp))
                   Text(
                     text = CurrencyFormatter.format(state.result.estimatedReturns),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = ChartWealthGain
+                    style = MaterialTheme.typography.titleMedium.copy(
+                      fontWeight = FontWeight.Bold,
+                      fontFeatureSettings = "tnum"
+                    ),
+                    color = semantic.income
                   )
                 }
               }
-
             }
           }
         }
@@ -769,8 +804,11 @@ fun InvestmentScreen(
 
         // Yearly Compounding Table
         item {
+          val semantic = OmniFinCalcThemeTokens.colors
           Card(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier.fillMaxWidth()
           ) {
@@ -779,32 +817,54 @@ fun InvestmentScreen(
                 text = "Yearly Compounding Breakdown",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
               )
-              Spacer(modifier = Modifier.height(8.dp))
+              Spacer(modifier = Modifier.height(10.dp))
 
               Row(
                 modifier = Modifier
                   .fillMaxWidth()
-                  .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
-                  .padding(8.dp),
+                  .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f), RoundedCornerShape(10.dp))
+                  .padding(horizontal = 10.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
               ) {
-                Text("Year", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(0.8f))
-                Text("Invested", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1.4f))
-                Text("Returns", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1.4f))
-                Text("Balance", fontWeight = FontWeight.Bold, fontSize = 12.sp, modifier = Modifier.weight(1.5f))
+                Text("Year", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.8f))
+                Text("Invested", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.4f))
+                Text("Returns", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.4f))
+                Text("Balance", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.5f))
               }
 
-              state.result.yearlyBreakdown.forEach { item ->
+              state.result.yearlyBreakdown.forEachIndexed { idx, item ->
                 Row(
                   modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 6.dp, horizontal = 8.dp),
+                    .background(
+                      if (idx % 2 == 1) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f) else Color.Transparent,
+                      RoundedCornerShape(6.dp)
+                    )
+                    .padding(vertical = 7.dp, horizontal = 10.dp),
                   horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                  Text("Yr ${item.year}", fontSize = 11.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(0.8f))
-                  Text(CurrencyFormatter.formatCompact(item.invested, ""), fontSize = 11.sp, color = ChartInvested, modifier = Modifier.weight(1.4f))
-                  Text(CurrencyFormatter.formatCompact(item.returns, ""), fontSize = 11.sp, color = ChartWealthGain, modifier = Modifier.weight(1.4f))
-                  Text(CurrencyFormatter.formatCompact(item.balance, ""), fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1.5f))
+                  Text(
+                    "Yr ${item.year}",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"),
+                    modifier = Modifier.weight(0.8f)
+                  )
+                  Text(
+                    CurrencyFormatter.formatCompact(item.invested, ""),
+                    style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
+                    color = ChartInvested,
+                    modifier = Modifier.weight(1.4f)
+                  )
+                  Text(
+                    CurrencyFormatter.formatCompact(item.returns, ""),
+                    style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
+                    color = semantic.income,
+                    modifier = Modifier.weight(1.4f)
+                  )
+                  Text(
+                    CurrencyFormatter.formatCompact(item.balance, ""),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+                    modifier = Modifier.weight(1.5f)
+                  )
                 }
               }
             }

@@ -1,6 +1,7 @@
 package com.example.ui.screens.history
 import com.example.ui.theme.performConfiguredHapticFeedback
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.entity.CalculationRecord
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -55,6 +57,7 @@ fun HistoryBottomSheet(
   val selectedFilter by viewModel.selectedFilter.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   var showClearConfirm by remember { mutableStateOf(false) }
   var selectedRecord by remember { mutableStateOf<CalculationRecord?>(null) }
 
@@ -63,17 +66,31 @@ fun HistoryBottomSheet(
   if (showClearConfirm) {
     AlertDialog(
       onDismissRequest = { showClearConfirm = false },
-      title = { Text("Clear All History?") },
-      text = { Text("This will permanently remove all your saved calculations.") },
+      shape = RoundedCornerShape(22.dp),
+      containerColor = MaterialTheme.colorScheme.surface,
+      title = {
+        Text(
+          "Clear All History?",
+          style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+      },
+      text = {
+        Text(
+          "This will permanently remove all your saved calculations.",
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      },
       confirmButton = {
         Button(
           onClick = {
             viewModel.clearAll()
             showClearConfirm = false
           },
-          colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+          shape = RoundedCornerShape(12.dp),
+          colors = ButtonDefaults.buttonColors(containerColor = semantic.expense)
         ) {
-          Text("Clear All")
+          Text("Clear All", fontWeight = FontWeight.SemiBold)
         }
       },
       dismissButton = {
@@ -87,18 +104,61 @@ fun HistoryBottomSheet(
   selectedRecord?.let { record ->
     AlertDialog(
       onDismissRequest = { selectedRecord = null },
-      title = { Text(record.title, fontWeight = FontWeight.Bold) },
-      text = { Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(record.summary, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-        Text(record.detailsText, style = MaterialTheme.typography.bodySmall)
-      } },
-      confirmButton = { TextButton(onClick = { onOpenRecord(record); selectedRecord = null }) { Text("Open calculator") } },
-      dismissButton = { TextButton(onClick = { selectedRecord = null }) { Text("Close") } }
+      shape = RoundedCornerShape(22.dp),
+      containerColor = MaterialTheme.colorScheme.surface,
+      title = {
+        Text(
+          record.title,
+          style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+      },
+      text = {
+        Column(
+          Modifier
+            .heightIn(max = 420.dp)
+            .verticalScroll(rememberScrollState()),
+          verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+          Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Text(
+              record.summary,
+              style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontFeatureSettings = "tnum"
+              ),
+              color = MaterialTheme.colorScheme.onSurface,
+              modifier = Modifier.padding(12.dp)
+            )
+          }
+          Text(
+            record.detailsText,
+            style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
+      },
+      confirmButton = {
+        Button(
+          onClick = { onOpenRecord(record); selectedRecord = null },
+          shape = RoundedCornerShape(12.dp)
+        ) {
+          Text("Open calculator", fontWeight = FontWeight.SemiBold)
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { selectedRecord = null }) { Text("Close") }
+      }
     )
   }
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surface,
     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     modifier = Modifier.testTag("history_bottom_sheet")
   ) {
@@ -120,7 +180,7 @@ fun HistoryBottomSheet(
           )
           Text(
             text = "${historyList.size} records saved locally",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
@@ -128,11 +188,11 @@ fun HistoryBottomSheet(
         if (historyList.isNotEmpty()) {
           TextButton(
             onClick = { showClearConfirm = true },
-            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            colors = ButtonDefaults.textButtonColors(contentColor = semantic.expense)
           ) {
             Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Clear", fontSize = 12.sp)
+            Text("Clear", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
           }
         }
       }
@@ -145,13 +205,31 @@ fun HistoryBottomSheet(
         modifier = Modifier.fillMaxWidth()
       ) {
         items(filters, key = { it.first }, contentType = { "history_filter" }) { (key, label) ->
+          val isSelected = selectedFilter == key
           FilterChip(
-            selected = selectedFilter == key,
+            selected = isSelected,
             onClick = {
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
               viewModel.setFilter(key)
             },
-            label = { Text(label, fontSize = 12.sp) }
+            label = {
+              Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+              )
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = FilterChipDefaults.filterChipColors(
+              selectedContainerColor = MaterialTheme.colorScheme.primary,
+              selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+              containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+              labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            border = BorderStroke(
+              width = 1.dp,
+              color = if (isSelected) MaterialTheme.colorScheme.primary else semantic.cardBorder
+            )
           )
         }
       }
@@ -169,19 +247,21 @@ fun HistoryBottomSheet(
             Icon(
               Icons.Default.BookmarkBorder,
               contentDescription = null,
-              tint = MaterialTheme.colorScheme.outline,
-              modifier = Modifier.size(48.dp)
+              tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+              modifier = Modifier.size(44.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
               text = "No saved calculations yet",
-              style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.SemiBold,
+              color = MaterialTheme.colorScheme.onSurface
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-              text = "Use the bookmark icon on any screen to save!",
+              text = "Use the bookmark icon on any screen to save.",
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.outline
+              color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           }
         }
@@ -211,12 +291,14 @@ private fun HistoryItemCard(
   onDelete: () -> Unit,
   onClick: () -> Unit
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val formattedDate = remember(item.timestamp) {
     Instant.ofEpochMilli(item.timestamp).atZone(ZoneId.systemDefault()).format(HISTORY_DATE_FORMATTER)
   }
   Card(
-    shape = RoundedCornerShape(14.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+    shape = RoundedCornerShape(16.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+    border = BorderStroke(1.dp, semantic.cardBorder),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
   ) {
@@ -226,33 +308,35 @@ private fun HistoryItemCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        SuggestionChip(
-          onClick = {},
-          label = { Text(item.category, fontSize = 10.sp, fontWeight = FontWeight.Bold) },
-          colors = SuggestionChipDefaults.suggestionChipColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-          ),
-          border = null,
-          modifier = Modifier.height(24.dp)
-        )
+        Surface(
+          shape = RoundedCornerShape(8.dp),
+          color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f)
+        ) {
+          Text(
+            text = item.category,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+          )
+        }
         Text(
           text = formattedDate,
-          style = MaterialTheme.typography.labelSmall,
+          style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
 
-      Spacer(modifier = Modifier.height(6.dp))
+      Spacer(modifier = Modifier.height(8.dp))
 
       Text(
         text = item.title,
-        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
         color = MaterialTheme.colorScheme.onSurface
       )
 
       Text(
         text = item.summary,
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(vertical = 4.dp)
       )
@@ -262,14 +346,19 @@ private fun HistoryItemCard(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        IconButton(onClick = onShare, modifier = Modifier.size(32.dp)) {
-          Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(18.dp))
+        IconButton(onClick = onShare, modifier = Modifier.size(36.dp)) {
+          Icon(
+            Icons.Default.Share,
+            contentDescription = "Share",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+          )
         }
-        IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+        IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
           Icon(
             Icons.Default.DeleteOutline,
             contentDescription = "Delete",
-            tint = MaterialTheme.colorScheme.error,
+            tint = semantic.expense,
             modifier = Modifier.size(18.dp)
           )
         }

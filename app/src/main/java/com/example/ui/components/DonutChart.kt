@@ -46,6 +46,7 @@ fun DonutChart(
   selectedSliceIndex: Int? = null,
   onSliceSelected: ((Int) -> Unit)? = null
 ) {
+  val trackColor = MaterialTheme.colorScheme.surfaceVariant
   val total = androidx.compose.runtime.remember(slices) { slices.sumOf { it.value } }
   val progress by animateFloatAsState(
     targetValue = 1f,
@@ -95,7 +96,7 @@ fun DonutChart(
 
         if (total <= 0.0) {
           drawArc(
-            color = Color.LightGray.copy(alpha = 0.3f),
+            color = trackColor,
             startAngle = 0f,
             sweepAngle = 360f,
             useCenter = false,
@@ -105,13 +106,14 @@ fun DonutChart(
           )
         } else {
           var startAngle = -90f
+          val gapDeg = if (slices.count { it.value > 0.0 } > 1) 2.2f else 0f
           for ((index, slice) in slices.withIndex()) {
             val sweep = ((slice.value / total) * 360.0).toFloat() * progress
             if (sweep > 0f) {
               drawArc(
                 color = slice.color,
                 startAngle = startAngle,
-                sweepAngle = sweep,
+                sweepAngle = (sweep - gapDeg).coerceAtLeast(1f),
                 useCenter = false,
                 topLeft = topLeft,
                 size = arcSize,
@@ -138,7 +140,10 @@ fun DonutChart(
           if (centerTitle != null) {
             Text(
               text = centerTitle,
-              style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+              style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontFeatureSettings = "tnum"
+              ),
               color = MaterialTheme.colorScheme.onSurface
             )
           }
@@ -175,7 +180,10 @@ fun DonutChart(
             )
             Text(
               text = "$percent% (${CurrencyFormatter.formatCompact(slice.value)})",
-              style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+              style = MaterialTheme.typography.labelMedium.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontFeatureSettings = "tnum"
+              ),
               color = MaterialTheme.colorScheme.onSurface
             )
           }

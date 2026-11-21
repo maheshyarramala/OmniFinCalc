@@ -1,6 +1,7 @@
 package com.example.ui.screens.interest
 import com.example.ui.theme.performConfiguredHapticFeedback
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,6 +29,7 @@ import com.example.ui.components.DonutChart
 import com.example.ui.components.NumberInputField
 import com.example.ui.theme.ChartInterest
 import com.example.ui.theme.ChartPrincipal
+import com.example.ui.theme.OmniFinCalcThemeTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,37 +68,49 @@ fun InterestCalculatorScreen(
     ) {
       // Sub-Tabs for all Interest Methods with icons
       item {
-        ScrollableTabRow(
-          selectedTabIndex = state.selectedMethod.ordinal,
-          edgePadding = 0.dp,
-          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-          modifier = Modifier
-            .fillMaxWidth()
-            .testTag("interest_methods_tabs")
+        val semantic = OmniFinCalcThemeTokens.colors
+        Surface(
+          shape = RoundedCornerShape(14.dp),
+          color = MaterialTheme.colorScheme.surface,
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          modifier = Modifier.fillMaxWidth()
         ) {
-          InterestMethod.values().forEach { method ->
-            val icon = when (method) {
-              InterestMethod.SIMPLE -> Icons.Default.Savings
-              InterestMethod.COMPOUND -> Icons.AutoMirrored.Filled.TrendingUp
-              InterestMethod.DOUBLING -> Icons.Default.Speed
-              InterestMethod.EAR -> Icons.Default.Percent
-              InterestMethod.FLAT_VS_REDUCING -> Icons.AutoMirrored.Filled.CompareArrows
-            }
-            Tab(
-              selected = state.selectedMethod == method,
-              onClick = {
-                haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                viewModel.selectMethod(method)
-              },
-              icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-              text = {
-                Text(
-                  text = method.title,
-                  fontWeight = if (state.selectedMethod == method) FontWeight.Bold else FontWeight.Normal,
-                  fontSize = 11.sp
-                )
+          ScrollableTabRow(
+            selectedTabIndex = state.selectedMethod.ordinal,
+            edgePadding = 4.dp,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary,
+            divider = {},
+            modifier = Modifier
+              .fillMaxWidth()
+              .testTag("interest_methods_tabs")
+          ) {
+            InterestMethod.values().forEach { method ->
+              val icon = when (method) {
+                InterestMethod.SIMPLE -> Icons.Default.Savings
+                InterestMethod.COMPOUND -> Icons.AutoMirrored.Filled.TrendingUp
+                InterestMethod.DOUBLING -> Icons.Default.Speed
+                InterestMethod.EAR -> Icons.Default.Percent
+                InterestMethod.FLAT_VS_REDUCING -> Icons.AutoMirrored.Filled.CompareArrows
               }
-            )
+              Tab(
+                selected = state.selectedMethod == method,
+                onClick = {
+                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                  viewModel.selectMethod(method)
+                },
+                selectedContentColor = MaterialTheme.colorScheme.primary,
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                text = {
+                  Text(
+                    text = method.title,
+                    fontWeight = if (state.selectedMethod == method) FontWeight.Bold else FontWeight.Medium,
+                    fontSize = 11.sp
+                  )
+                }
+              )
+            }
           }
         }
       }
@@ -134,11 +148,13 @@ private fun SimpleInterestSection(viewModel: InterestCalculatorViewModel) {
   val haptic = LocalHapticFeedback.current
   val res = state.siResult
 
+  val semantic = OmniFinCalcThemeTokens.colors
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -218,14 +234,21 @@ private fun SimpleInterestSection(viewModel: InterestCalculatorViewModel) {
     // Result Card with Donut Chart
     Card(
       shape = RoundedCornerShape(20.dp),
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Total Maturity Amount", style = MaterialTheme.typography.labelMedium)
+        Text("Total Maturity Amount", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
           text = CurrencyFormatter.format(res.totalAmount),
-          style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+          style = MaterialTheme.typography.headlineLarge.copy(
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
+          )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -249,13 +272,15 @@ private fun CompoundInterestSection(viewModel: InterestCalculatorViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.ciResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -315,23 +340,34 @@ private fun CompoundInterestSection(viewModel: InterestCalculatorViewModel) {
     // Result Card
     Card(
       shape = RoundedCornerShape(20.dp),
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Total Compounded Amount", style = MaterialTheme.typography.labelMedium)
+        Text("Total Compounded Amount", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
           text = CurrencyFormatter.format(res.totalAmount),
-          style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+          style = MaterialTheme.typography.headlineLarge.copy(
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
+          )
         )
 
         Spacer(modifier = Modifier.height(14.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        HorizontalDivider(color = semantic.divider)
         Spacer(modifier = Modifier.height(14.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("Compound Interest Earned:", style = MaterialTheme.typography.bodyMedium)
-          Text(CurrencyFormatter.format(res.totalInterest), fontWeight = FontWeight.Bold, color = Color(0xFF059669))
+          Text("Compound Interest Earned", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            CurrencyFormatter.format(res.totalInterest),
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+            color = semantic.income
+          )
         }
       }
     }
@@ -343,13 +379,15 @@ private fun DoublingPeriodSection(viewModel: InterestCalculatorViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.doublingResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -381,32 +419,46 @@ private fun DoublingPeriodSection(viewModel: InterestCalculatorViewModel) {
     // Results Card
     Card(
       shape = RoundedCornerShape(20.dp),
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Time to Double Your Money", style = MaterialTheme.typography.labelMedium)
+        Text("Time to Double Your Money", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
           text = "${String.format(java.util.Locale.US, "%.1f", res.exactDoublingYears)} Years",
-          style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+          style = MaterialTheme.typography.headlineLarge.copy(
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
+          )
         )
         Text(
-          text = "(Rule of 72 Estimate: ${String.format(java.util.Locale.US, "%.1f", res.ruleOf72Years)} Years)",
-          style = MaterialTheme.typography.bodySmall,
+          text = "Rule of 72 Estimate: ${String.format(java.util.Locale.US, "%.1f", res.ruleOf72Years)} Years",
+          style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        HorizontalDivider(color = semantic.divider)
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("Time to Triple (3x):", style = MaterialTheme.typography.bodyMedium)
-          Text("${String.format(java.util.Locale.US, "%.1f", res.triplingYears)} Years", fontWeight = FontWeight.Bold)
+          Text("Time to Triple (3x)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            "${String.format(java.util.Locale.US, "%.1f", res.triplingYears)} Years",
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
+          )
         }
+        Spacer(modifier = Modifier.height(6.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("Time to Quadruple (4x):", style = MaterialTheme.typography.bodyMedium)
-          Text("${String.format(java.util.Locale.US, "%.1f", res.quadruplingYears)} Years", fontWeight = FontWeight.Bold)
+          Text("Time to Quadruple (4x)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            "${String.format(java.util.Locale.US, "%.1f", res.quadruplingYears)} Years",
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
+          )
         }
       }
     }
@@ -418,13 +470,15 @@ private fun EffectiveRateSection(viewModel: InterestCalculatorViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.earResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -470,19 +524,27 @@ private fun EffectiveRateSection(viewModel: InterestCalculatorViewModel) {
     // Results Card
     Card(
       shape = RoundedCornerShape(20.dp),
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("True Effective Annual Rate (APY)", style = MaterialTheme.typography.labelMedium)
+        Text("True Effective Annual Rate (APY)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
           text = "${String.format(java.util.Locale.US, "%.3f", res.effectiveRatePercent)}%",
-          style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
+          style = MaterialTheme.typography.headlineLarge.copy(
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
+          )
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
           text = "Extra yield earned: +${String.format(java.util.Locale.US, "%.3f", res.extraYieldPercent)}% due to compounding",
-          style = MaterialTheme.typography.bodySmall,
-          color = Color(0xFF059669)
+          style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
+          color = semantic.income
         )
       }
     }
@@ -494,13 +556,15 @@ private fun FlatVsReducingSection(viewModel: InterestCalculatorViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.flatVsReducingResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -546,30 +610,47 @@ private fun FlatVsReducingSection(viewModel: InterestCalculatorViewModel) {
     // Results Comparison Card
     Card(
       shape = RoundedCornerShape(20.dp),
-      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("True Interest Comparison", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("Quoted Flat Rate:", style = MaterialTheme.typography.bodyMedium)
-          Text("${res.flatRate}%", fontWeight = FontWeight.Bold)
+          Text("Quoted Flat Rate", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            "${res.flatRate}%",
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
+          )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("True Reducing Balance Rate:", style = MaterialTheme.typography.bodyMedium)
-          Text("${String.format(java.util.Locale.US, "%.2f", res.equivalentReducingRate)}%", fontWeight = FontWeight.ExtraBold, color = Color(0xFFEF4444))
+          Text("True Reducing Balance Rate", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            "${String.format(java.util.Locale.US, "%.2f", res.equivalentReducingRate)}%",
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold, fontFeatureSettings = "tnum"),
+            color = semantic.expense
+          )
         }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+        HorizontalDivider(color = semantic.divider, modifier = Modifier.padding(vertical = 4.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("Total Interest Paid:", style = MaterialTheme.typography.bodyMedium)
-          Text(CurrencyFormatter.format(res.flatTotalInterest), fontWeight = FontWeight.Bold, color = ChartInterest)
+          Text("Total Interest Paid", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            CurrencyFormatter.format(res.flatTotalInterest),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+            color = ChartInterest
+          )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          Text("Monthly Installment (EMI):", style = MaterialTheme.typography.bodyMedium)
-          Text(CurrencyFormatter.format(res.flatMonthlyPayment), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+          Text("Monthly Installment (EMI)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            CurrencyFormatter.format(res.flatMonthlyPayment),
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+            color = MaterialTheme.colorScheme.primary
+          )
         }
       }
     }

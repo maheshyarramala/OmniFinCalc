@@ -1,17 +1,21 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.local.entity.BankAccount
 import com.example.data.local.entity.CreditCardBillReminder
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -28,6 +32,7 @@ fun CreditCardBillReminderDialog(
   onDismiss: () -> Unit,
   onSave: (CreditCardBillReminder) -> Unit
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val today = LocalDate.now()
   var selectedAccountId by remember(editingAccountId, cardAccounts) {
     mutableStateOf(
@@ -69,19 +74,29 @@ fun CreditCardBillReminderDialog(
 
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text(stringResource(R.string.card_bill_due_alerts_title)) },
+    shape = RoundedCornerShape(22.dp),
+    containerColor = MaterialTheme.colorScheme.surface,
+    title = {
+      Text(
+        stringResource(R.string.card_bill_due_alerts_title),
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+      )
+    },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Box {
           OutlinedButton(
             onClick = { accountMenuExpanded = true },
             modifier = Modifier.fillMaxWidth(),
-            enabled = editingAccountId == null
+            enabled = editingAccountId == null,
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, semantic.cardBorder)
           ) {
             Text(
               selectedAccount?.bankName ?: stringResource(R.string.card_bill_select_account),
               maxLines = 1,
-              overflow = TextOverflow.Ellipsis
+              overflow = TextOverflow.Ellipsis,
+              fontWeight = FontWeight.Medium
             )
           }
           DropdownMenu(
@@ -106,15 +121,19 @@ fun CreditCardBillReminderDialog(
             if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d*$"))) amount = input
           },
           label = { Text(stringResource(R.string.card_bill_amount)) },
-          prefix = { Text("₹") },
+          prefix = { Text("₹", fontWeight = FontWeight.SemiBold) },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
           singleLine = true,
+          shape = RoundedCornerShape(14.dp),
+          textStyle = MaterialTheme.typography.bodyLarge.copy(fontFeatureSettings = "tnum"),
           modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedButton(
           onClick = { showDatePicker = true },
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(12.dp),
+          border = BorderStroke(1.dp, semantic.cardBorder)
         ) {
           Text(
             stringResource(
@@ -122,7 +141,8 @@ fun CreditCardBillReminderDialog(
               LocalDate.ofEpochDay(selectedDueDate).format(
                 DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
               )
-            )
+            ),
+            style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum")
           )
         }
 
@@ -136,7 +156,7 @@ fun CreditCardBillReminderDialog(
           Text(
             stringResource(R.string.card_bill_due_date_must_be_future),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error
+            color = semantic.expense
           )
         }
       }
@@ -154,9 +174,10 @@ fun CreditCardBillReminderDialog(
             )
           }
         },
-        enabled = selectedAccount != null && enteredAmount != null && enteredAmount > 0.0 && isDueDateValid
+        enabled = selectedAccount != null && enteredAmount != null && enteredAmount > 0.0 && isDueDateValid,
+        shape = RoundedCornerShape(12.dp)
       ) {
-        Text(stringResource(R.string.card_bill_save_reminder))
+        Text(stringResource(R.string.card_bill_save_reminder), fontWeight = FontWeight.SemiBold)
       }
     },
     dismissButton = {

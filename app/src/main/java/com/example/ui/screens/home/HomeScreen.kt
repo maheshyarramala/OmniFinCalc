@@ -5,13 +5,16 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -273,11 +276,12 @@ fun HomeScreen(
     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
-    // 1. Total Balance Hero Card (Deep Navy Fintech Card)
+    // 1. Total Balance Hero Card (Sleek Modern Banking Card)
     item(key = "hero_balance") {
       Card(
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier
           .fillMaxWidth()
@@ -291,7 +295,7 @@ fun HomeScreen(
                 colors = listOf(semantic.heroStart, semantic.heroEnd)
               )
             )
-            .padding(20.dp)
+            .padding(horizontal = 20.dp, vertical = 18.dp)
         ) {
           Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(
@@ -299,23 +303,37 @@ fun HomeScreen(
               horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically
             ) {
-              Column {
-                Text(
-                  text = "TOTAL LIQUID BALANCE",
-                  style = MaterialTheme.typography.labelSmall,
-                  color = Color.White.copy(alpha = 0.72f)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                  text = CurrencyFormatter.format(totalBalance),
-                  style = MaterialTheme.typography.displaySmall.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFeatureSettings = "tnum"
-                  ),
-                  color = Color.White,
-                  maxLines = 1,
-                  overflow = TextOverflow.Ellipsis
-                )
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.weight(1f)
+              ) {
+                Box(
+                  modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.12f)),
+                  contentAlignment = Alignment.Center
+                ) {
+                  Icon(
+                    imageVector = Icons.Default.AccountBalanceWallet,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                  )
+                }
+                Column {
+                  Text(
+                    text = "TOTAL LIQUID BALANCE",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.72f)
+                  )
+                  Text(
+                    text = "${accounts.size} Linked Accounts",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.56f)
+                  )
+                }
               }
               IconButton(
                 onClick = {
@@ -329,14 +347,26 @@ fun HomeScreen(
                 Icon(
                   imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                   contentDescription = if (isPrivacyMode) "Show balances" else "Hide balances",
-                  tint = Color.White.copy(alpha = 0.88f)
+                  tint = Color.White.copy(alpha = 0.88f),
+                  modifier = Modifier.size(20.dp)
                 )
               }
             }
 
+            Text(
+              text = CurrencyFormatter.format(totalBalance),
+              style = MaterialTheme.typography.displayMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontFeatureSettings = "tnum"
+              ),
+              color = Color.White,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+
             Row(
               modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.spacedBy(8.dp),
+              horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically
             ) {
               Row(
@@ -344,26 +374,13 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
               ) {
-                Surface(
-                  shape = RoundedCornerShape(10.dp),
-                  color = Color.White.copy(alpha = 0.12f)
-                ) {
-                  Text(
-                    text = "${accounts.size} Accounts",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = Color.White,
-                    maxLines = 1,
-                    softWrap = false,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                  )
-                }
                 if (totalCreditDue > 0.0) {
                   Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = semantic.expense.copy(alpha = 0.28f)
+                    color = semantic.expense.copy(alpha = 0.24f)
                   ) {
                     Text(
-                      text = "Due: ${CurrencyFormatter.formatWhole(totalCreditDue)}",
+                      text = "Card Due: ${CurrencyFormatter.formatWhole(totalCreditDue)}",
                       style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontFeatureSettings = "tnum"
@@ -375,16 +392,31 @@ fun HomeScreen(
                       modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                     )
                   }
+                } else {
+                  Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color.White.copy(alpha = 0.10f)
+                  ) {
+                    Text(
+                      text = "All cards settled",
+                      style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                      color = Color.White.copy(alpha = 0.85f),
+                      maxLines = 1,
+                      softWrap = false,
+                      modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    )
+                  }
                 }
               }
+              Spacer(modifier = Modifier.width(8.dp))
               Surface(
                 onClick = onReportsClick,
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFF3478F6),
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.testTag("dashboard_hero_analytics_btn")
               ) {
                 Row(
-                  modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                  modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                   verticalAlignment = Alignment.CenterVertically,
                   horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
@@ -414,7 +446,9 @@ fun HomeScreen(
       val savingsRate = if (monthIncome > 0.0) ((monthSavings / monthIncome) * 100.0).coerceIn(-100.0, 100.0) else 0.0
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
-          modifier = Modifier.fillMaxWidth(),
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
           horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
           FintechMetricTile(
@@ -424,7 +458,9 @@ fun HomeScreen(
             icon = Icons.AutoMirrored.Filled.TrendingUp,
             accentColor = semantic.income,
             onClick = { onNavigateToFinance(FinanceTab.EXPENSES) },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
           )
           FintechMetricTile(
             label = "Total Expenses",
@@ -433,7 +469,9 @@ fun HomeScreen(
             icon = Icons.AutoMirrored.Filled.TrendingDown,
             accentColor = semantic.expense,
             onClick = { onNavigateToFinance(FinanceTab.EXPENSES) },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
           )
         }
         FintechMetricTile(
@@ -500,7 +538,7 @@ fun HomeScreen(
               FintechQuickActionButton(
                 label = stringResource(R.string.home_quick_add_loan),
                 icon = Icons.Default.AccountBalance,
-                accentColor = Color(0xFF6366F1),
+                accentColor = Color(0xFF0EA5E9),
                 onClick = onAddLoanClick,
                 testTag = "quick_action_add_loan",
                 modifier = Modifier.weight(1f)
@@ -524,7 +562,7 @@ fun HomeScreen(
               FintechQuickActionButton(
                 label = "Calculators",
                 icon = Icons.Default.Calculate,
-                accentColor = Color(0xFF7C3AED),
+                accentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 onClick = onNavigateToCalculatorHub,
                 testTag = "quick_action_calculators",
                 modifier = Modifier.weight(1f)

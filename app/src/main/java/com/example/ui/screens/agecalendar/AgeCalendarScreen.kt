@@ -3,6 +3,7 @@ import com.example.ui.theme.performConfiguredHapticFeedback
 
 import android.app.DatePickerDialog
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.CurrencyFormatter
 import com.example.ui.components.NumberInputField
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -66,34 +68,61 @@ fun AgeCalendarScreen(
     ) {
       // Sub-Tabs: Age Calculator / Date Difference / Add-Subtract
       item {
-        TabRow(
-          selectedTabIndex = state.selectedTab.ordinal,
-          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        val semantic = OmniFinCalcThemeTokens.colors
+        Surface(
+          shape = RoundedCornerShape(14.dp),
+          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+          border = BorderStroke(1.dp, semantic.cardBorder),
           modifier = Modifier
             .fillMaxWidth()
             .testTag("age_calendar_tabs")
         ) {
-          AgeCalendarTab.values().forEach { tab ->
-            val icon = when (tab) {
-              AgeCalendarTab.AGE -> Icons.Default.Cake
-              AgeCalendarTab.DATE_DIFF -> Icons.Default.DateRange
-              AgeCalendarTab.ADD_SUBTRACT -> Icons.Default.CalendarToday
-            }
-            Tab(
-              selected = state.selectedTab == tab,
-              onClick = {
-                haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                viewModel.selectTab(tab)
-              },
-              icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
-              text = {
-                Text(
-                  text = tab.title,
-                  fontWeight = if (state.selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
-                  fontSize = 11.sp
-                )
+          Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+          ) {
+            AgeCalendarTab.values().forEach { tab ->
+              val isSelected = state.selectedTab == tab
+              val icon = when (tab) {
+                AgeCalendarTab.AGE -> Icons.Default.Cake
+                AgeCalendarTab.DATE_DIFF -> Icons.Default.DateRange
+                AgeCalendarTab.ADD_SUBTRACT -> Icons.Default.CalendarToday
               }
-            )
+              Surface(
+                onClick = {
+                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                  viewModel.selectTab(tab)
+                },
+                shape = RoundedCornerShape(10.dp),
+                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                modifier = Modifier.weight(1f)
+              ) {
+                Column(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 4.dp),
+                  horizontalAlignment = Alignment.CenterHorizontally,
+                  verticalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                  Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                  )
+                  Text(
+                    text = tab.title,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                      fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    ),
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                  )
+                }
+              }
+            }
           }
         }
       }
@@ -131,12 +160,14 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
   val res = state.ageResult
   val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault()) }
 
+  val semantic = OmniFinCalcThemeTokens.colors
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     // Inputs Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -181,8 +212,10 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
     // Age Hero Result Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+        containerColor = MaterialTheme.colorScheme.surface
       ),
       modifier = Modifier.fillMaxWidth()
     ) {
@@ -190,16 +223,14 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
         modifier = Modifier.padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
-        Text("Your Exact Age", style = MaterialTheme.typography.labelMedium)
-        Spacer(modifier = Modifier.height(4.dp))
+        Text("Your Exact Age", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(10.dp))
         Row(
-          horizontalArrangement = Arrangement.Center,
+          horizontalArrangement = Arrangement.spacedBy(10.dp),
           verticalAlignment = Alignment.Bottom
         ) {
           AgeUnitBadge(value = res.years, unit = "Years")
-          Spacer(modifier = Modifier.width(8.dp))
           AgeUnitBadge(value = res.months, unit = "Months")
-          Spacer(modifier = Modifier.width(8.dp))
           AgeUnitBadge(value = res.days, unit = "Days")
         }
 
@@ -211,13 +242,15 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
         )
 
         Spacer(modifier = Modifier.height(14.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        HorizontalDivider(color = semantic.divider)
         Spacer(modifier = Modifier.height(14.dp))
 
         // Next Birthday Box
         Card(
           shape = RoundedCornerShape(14.dp),
-          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+          border = BorderStroke(1.dp, semantic.cardBorder),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Row(
@@ -227,8 +260,8 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
             Icon(
               Icons.Default.Cake,
               contentDescription = null,
-              tint = Color(0xFFF43F5E),
-              modifier = Modifier.size(32.dp)
+              tint = semantic.expense,
+              modifier = Modifier.size(30.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
@@ -239,13 +272,13 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
               )
               Text(
                 text = "In ${res.nextBirthdayMonths} Months and ${res.nextBirthdayDays} Days (${res.nextBirthdayTotalDays} days total)",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
                 color = MaterialTheme.colorScheme.onSurface
               )
               Text(
                 text = "Falls on a ${res.nextBirthdayDayOfWeek}",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF059669)
+                color = semantic.income
               )
             }
           }
@@ -255,7 +288,9 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
 
     // Life Statistics Card
     Card(
-      shape = RoundedCornerShape(16.dp),
+      shape = RoundedCornerShape(18.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
@@ -272,7 +307,9 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
 
     // Upcoming 5 Birthdays Card
     Card(
-      shape = RoundedCornerShape(16.dp),
+      shape = RoundedCornerShape(18.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
       modifier = Modifier.fillMaxWidth()
     ) {
@@ -280,18 +317,18 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
         Text("Upcoming Birthdays", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
         Spacer(modifier = Modifier.height(10.dp))
 
-        res.upcomingBirthdays.forEach { bday ->
+        res.upcomingBirthdays.forEachIndexed { idx, bday ->
           Row(
             modifier = Modifier
               .fillMaxWidth()
-              .padding(vertical = 6.dp),
+              .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
             Column {
               Text(
                 text = bday.date.format(dateFormatter),
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum")
               )
               Text(
                 text = bday.dayOfWeek,
@@ -299,16 +336,21 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
               )
             }
-            SuggestionChip(
-              onClick = {},
-              label = { Text("Turning ${bday.ageTurning}", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
-              colors = SuggestionChipDefaults.suggestionChipColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-              ),
-              border = null
-            )
+            Surface(
+              shape = RoundedCornerShape(99.dp),
+              color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+              Text(
+                text = "Turning ${bday.ageTurning}",
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+              )
+            }
           }
-          HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+          if (idx < res.upcomingBirthdays.lastIndex) {
+            HorizontalDivider(color = semantic.divider)
+          }
         }
       }
     }
@@ -317,20 +359,24 @@ private fun AgeCalculatorSection(viewModel: AgeCalendarViewModel) {
 
 @Composable
 private fun AgeUnitBadge(value: Int, unit: String) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Card(
-    shape = RoundedCornerShape(12.dp),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    shape = RoundedCornerShape(14.dp),
+    border = BorderStroke(1.dp, semantic.cardBorder),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
     modifier = Modifier.padding(2.dp)
   ) {
     Column(
-      modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+      modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Text(
         text = value.toString(),
         style = MaterialTheme.typography.headlineMedium.copy(
           fontWeight = FontWeight.ExtraBold,
-          color = MaterialTheme.colorScheme.primary
+          color = MaterialTheme.colorScheme.primary,
+          fontFeatureSettings = "tnum"
         )
       )
       Text(
@@ -349,7 +395,7 @@ private fun LifeStatRow(label: String, value: String) {
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
     Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Text(value, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+    Text(value, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"))
   }
 }
 
@@ -358,13 +404,15 @@ private fun DateDifferenceSection(viewModel: AgeCalendarViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.diffResult
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -422,54 +470,76 @@ private fun DateDifferenceSection(viewModel: AgeCalendarViewModel) {
     // Difference Results Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+        containerColor = MaterialTheme.colorScheme.surface
       ),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Total Difference", style = MaterialTheme.typography.labelMedium)
+        Text("Total Difference", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
           text = "${String.format(Locale.US, "%,d", res.totalDays)} Days",
           style = MaterialTheme.typography.headlineLarge.copy(
             fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
           )
         )
         Text(
           text = "${res.years} Years, ${res.months} Months, ${res.days} Days",
-          style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+          style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"),
           color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(14.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        HorizontalDivider(color = semantic.divider)
         Spacer(modifier = Modifier.height(14.dp))
 
         Row(
-          modifier = Modifier.fillMaxWidth(),
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
           horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
           Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            modifier = Modifier.weight(1f)
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+            modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
           ) {
             Column(modifier = Modifier.padding(12.dp)) {
               Text("Working Days", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
               Spacer(modifier = Modifier.height(4.dp))
-              Text("${res.workingDays} Days", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = Color(0xFF059669))
+              Text(
+                "${res.workingDays} Days",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+                color = semantic.income
+              )
             }
           }
           Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            modifier = Modifier.weight(1f)
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+            modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
           ) {
             Column(modifier = Modifier.padding(12.dp)) {
               Text("Weekend Days", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
               Spacer(modifier = Modifier.height(4.dp))
-              Text("${res.weekendDays} Days", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = Color(0xFFF43F5E))
+              Text(
+                "${res.weekendDays} Days",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+                color = semantic.expense
+              )
             }
           }
         }
@@ -483,14 +553,16 @@ private fun DateAddSubtractSection(viewModel: AgeCalendarViewModel) {
   val state by viewModel.uiState.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
   val res = state.adjResult
   val dateFormatter = remember { DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale.getDefault()) }
 
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -686,40 +758,54 @@ private fun DateAddSubtractSection(viewModel: AgeCalendarViewModel) {
     // Adjustment Result Card
     Card(
       shape = RoundedCornerShape(20.dp),
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
       colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+        containerColor = MaterialTheme.colorScheme.surface
       ),
       modifier = Modifier.fillMaxWidth()
     ) {
       Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Target Calculated Date", style = MaterialTheme.typography.labelMedium)
+        Text("Target Calculated Date", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(6.dp))
         Text(
           text = res.targetDate.format(dateFormatter),
           style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontFeatureSettings = "tnum"
           )
         )
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          SuggestionChip(
-            onClick = {},
-            label = { Text(if (res.isLeapYear) "Leap Year" else "Normal Year") }
-          )
-          SuggestionChip(
-            onClick = {},
-            label = {
-              Text(
-                when {
-                  res.daysFromToday > 0 -> "In ${res.daysFromToday} days"
-                  res.daysFromToday < 0 -> "${-res.daysFromToday} days ago"
-                  else -> "Today"
-                }
-              )
-            }
-          )
+          Surface(
+            shape = RoundedCornerShape(99.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            border = BorderStroke(1.dp, semantic.cardBorder)
+          ) {
+            Text(
+              if (res.isLeapYear) "Leap Year" else "Normal Year",
+              style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+              color = MaterialTheme.colorScheme.onSurface,
+              modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+            )
+          }
+          Surface(
+            shape = RoundedCornerShape(99.dp),
+            color = MaterialTheme.colorScheme.primaryContainer
+          ) {
+            Text(
+              when {
+                res.daysFromToday > 0 -> "In ${res.daysFromToday} days"
+                res.daysFromToday < 0 -> "${-res.daysFromToday} days ago"
+                else -> "Today"
+              },
+              style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum"),
+              color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
+            )
+          }
         }
       }
     }
@@ -733,6 +819,7 @@ private fun DatePickerField(
   onDateSelected: (LocalDate) -> Unit,
   context: android.content.Context
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault()) }
 
   val datePickerDialog = remember(date) {
@@ -747,9 +834,11 @@ private fun DatePickerField(
     )
   }
 
-  OutlinedCard(
+  Surface(
     onClick = { datePickerDialog.show() },
-    shape = RoundedCornerShape(12.dp),
+    shape = RoundedCornerShape(14.dp),
+    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+    border = BorderStroke(1.dp, semantic.cardBorder),
     modifier = Modifier.fillMaxWidth()
   ) {
     Row(
@@ -763,7 +852,7 @@ private fun DatePickerField(
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
           text = date.format(dateFormatter),
-          style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+          style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold, fontFeatureSettings = "tnum")
         )
       }
       Icon(Icons.Default.CalendarToday, contentDescription = "Pick Date", tint = MaterialTheme.colorScheme.primary)

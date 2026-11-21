@@ -267,6 +267,10 @@ fun SplitBillScreen(
 
       FilledTonalButton(
         onClick = { newGroupName = ""; showNewGroupDialog = true },
+        colors = ButtonDefaults.filledTonalButtonColors(
+          containerColor = MaterialTheme.colorScheme.primaryContainer,
+          contentColor = MaterialTheme.colorScheme.primary
+        ),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
         shape = RoundedCornerShape(12.dp)
       ) {
@@ -292,6 +296,7 @@ fun SplitBillScreen(
       Modifier.fillMaxWidth(),
       shape = RoundedCornerShape(22.dp),
       colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+      border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
       elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
       Column(
@@ -302,13 +307,27 @@ fun SplitBillScreen(
               listOf(semantic.heroStart, semantic.heroEnd)
             )
           )
-          .padding(20.dp),
+          .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
-        Text("TOTAL SPLIT BILL", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.78f))
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Box(
+            modifier = Modifier
+              .size(28.dp)
+              .clip(RoundedCornerShape(8.dp))
+              .background(Color.White.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(Icons.Default.CallSplit, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+          }
+          Text("TOTAL SPLIT BILL", style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.5.sp), color = Color.White.copy(alpha = 0.75f))
+        }
         Text(
           com.example.ui.components.CurrencyFormatter.formatFixed(total, state.currencySymbol),
-          style = MaterialTheme.typography.headlineLarge.copy(fontFeatureSettings = "tnum"),
+          style = MaterialTheme.typography.displaySmall.copy(fontFeatureSettings = "tnum"),
           fontWeight = FontWeight.ExtraBold,
           color = Color.White
         )
@@ -319,51 +338,109 @@ fun SplitBillScreen(
         }
       }
     }
-    Spacer(Modifier.height(14.dp))
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-      listOf("Expenses", "People", "Settle").forEachIndexed { i, label ->
-        val selected = state.activeTab == i
-        Surface(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).clickable { viewModel.setTab(i) }, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(14.dp)) {
-          Text(label, Modifier.padding(vertical = 12.dp), textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold, color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+    Spacer(Modifier.height(12.dp))
+    Surface(
+      shape = RoundedCornerShape(14.dp),
+      color = MaterialTheme.colorScheme.surfaceVariant,
+      border = BorderStroke(1.dp, semantic.cardBorder),
+      modifier = Modifier.fillMaxWidth()
+    ) {
+      Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(4.dp)
+      ) {
+        listOf("Expenses", "People", "Settle").forEachIndexed { i, label ->
+          val selected = state.activeTab == i
+          Surface(
+            onClick = { viewModel.setTab(i) },
+            color = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.weight(1f)
+          ) {
+            Text(
+              text = label,
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+              textAlign = TextAlign.Center,
+              fontSize = 13.sp,
+              fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+              color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+          }
         }
       }
     }
     Spacer(Modifier.height(12.dp))
     when (state.activeTab) {
-      0 -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 20.dp)) {
+      0 -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
         item(key = "split_expenses_header", contentType = "split_header") {
           Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Column { Text("Your expenses", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold); Text("Add what the group spent", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            FilledTonalButton(onClick = { viewModel.setShowAddItemDialog(true) }) { Icon(Icons.Default.Add, null); Text("Add") }
+            FilledTonalButton(
+              onClick = { viewModel.setShowAddItemDialog(true) },
+              colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary
+              ),
+              shape = RoundedCornerShape(12.dp)
+            ) { Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text("Add", fontWeight = FontWeight.SemiBold) }
           }
         }
         if (state.items.isEmpty()) item(key = "split_expenses_empty", contentType = "split_empty") { EmptySplitCard(Icons.AutoMirrored.Filled.ReceiptLong, "No expenses yet", "Add the first expense to start splitting the bill.", "Add expense") { viewModel.setShowAddItemDialog(true) } }
         items(state.items, key = { it.id }, contentType = { "split_expense" }) { item ->
           val payer = state.participants.firstOrNull { it.id == item.paidByParticipantId }?.name ?: "Not specified"
           val names = state.participants.filter { it.id in item.claimedParticipantIds }.joinToString { it.name }.ifBlank { state.participants.joinToString { it.name } }
-          Card(Modifier.fillMaxWidth().clickable { selectedExpense = item }, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f)), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)) {
+          Card(
+            Modifier.fillMaxWidth().clickable { selectedExpense = item },
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+          ) {
             Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-              Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.secondaryContainer) { Icon(Icons.Default.ReceiptLong, null, Modifier.padding(11.dp)) }
+              Surface(shape = RoundedCornerShape(11.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(10.dp).size(20.dp))
+              }
               Spacer(Modifier.width(12.dp))
               Column(Modifier.weight(1f)) {
                 Text(item.title, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text("Paid by $payer · ${item.paymentSource}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Paid by $payer · ${item.paymentSource}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text("Shared: $names", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
               }
               Column(horizontalAlignment = Alignment.End) {
-                Text(com.example.ui.components.CurrencyFormatter.formatFixed(item.price * item.quantity, state.currencySymbol), fontWeight = FontWeight.Bold)
+                Text(
+                  com.example.ui.components.CurrencyFormatter.formatFixed(item.price * item.quantity, state.currencySymbol),
+                  style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
+                )
                 Text("View details", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
               }
             }
           }
         }
-        item(key = "split_ocr_btn", contentType = "split_footer") { OutlinedButton(onClick = { viewModel.setShowOcrDialog(true) }, Modifier.fillMaxWidth()) { Icon(Icons.Default.DocumentScanner, null); Spacer(Modifier.width(8.dp)); Text("Scan or import receipt") } }
+        item(key = "split_ocr_btn", contentType = "split_footer") {
+          OutlinedButton(
+            onClick = { viewModel.setShowOcrDialog(true) },
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            modifier = Modifier.fillMaxWidth()
+          ) { Icon(Icons.Default.DocumentScanner, null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Scan or import receipt", fontWeight = FontWeight.SemiBold) }
+        }
       }
-      1 -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 20.dp)) {
+      1 -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
         item(key = "split_members_header", contentType = "split_header") {
           Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Column { Text("Group members", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold); Text("Manage who shares this bill", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            FilledTonalButton(onClick = { viewModel.setShowAddParticipantDialog(true) }) { Icon(Icons.Default.PersonAdd, null); Text("Add") }
+            FilledTonalButton(
+              onClick = { viewModel.setShowAddParticipantDialog(true) },
+              colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary
+              ),
+              shape = RoundedCornerShape(12.dp)
+            ) { Icon(Icons.Default.PersonAdd, null, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text("Add", fontWeight = FontWeight.SemiBold) }
           }
         }
         items(breakdowns, key = { it.participant.id }, contentType = { "split_person" }) { person ->
@@ -371,17 +448,33 @@ fun SplitBillScreen(
           val avatar = remember(person.participant.avatarColorHex, fallbackPrimary) {
             runCatching { Color(android.graphics.Color.parseColor(person.participant.avatarColorHex)) }.getOrDefault(fallbackPrimary)
           }
-          Card(Modifier.fillMaxWidth().clickable { selectedPerson = person.participant }, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = .5f)), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)) {
+          Card(
+            Modifier.fillMaxWidth().clickable { selectedPerson = person.participant },
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, semantic.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+          ) {
             Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-              Surface(shape = CircleShape, color = avatar.copy(alpha = .16f)) { Text(person.participant.name.take(1).uppercase(), Modifier.padding(13.dp), color = avatar, fontWeight = FontWeight.Bold) }
+              Surface(shape = CircleShape, color = avatar.copy(alpha = .15f), modifier = Modifier.size(40.dp)) {
+                Box(contentAlignment = Alignment.Center) {
+                  Text(person.participant.name.take(1).uppercase(), color = avatar, fontWeight = FontWeight.Bold)
+                }
+              }
               Spacer(Modifier.width(12.dp))
               Column(Modifier.weight(1f)) { Text(person.participant.name, fontWeight = FontWeight.SemiBold); Text("Paid ${com.example.ui.components.CurrencyFormatter.formatFixed(person.paidAmount, state.currencySymbol)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-              Column(horizontalAlignment = Alignment.End) { Text(com.example.ui.components.CurrencyFormatter.formatFixed(person.totalToPay, state.currencySymbol), fontWeight = FontWeight.Bold); Text("Your share", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+              Column(horizontalAlignment = Alignment.End) {
+                Text(
+                  com.example.ui.components.CurrencyFormatter.formatFixed(person.totalToPay, state.currencySymbol),
+                  style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum")
+                )
+                Text("Share", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+              }
             }
           }
         }
       }
-      else -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 20.dp)) {
+      else -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
         item(key = "split_settlement_header", contentType = "split_header") { Text("Settlement", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold); Text("See who needs to pay whom", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         if (transfers.isEmpty()) item(key = "split_settlement_empty", contentType = "split_empty") { EmptySplitCard(Icons.Default.CheckCircle, "All settled", if (total <= 0.0) "Add expenses to calculate balances." else "There are no outstanding payments.", "Copy summary") {
           val lines = breakdowns.joinToString("\n") { "${it.participant.name}: ${state.currencySymbol}${String.format(Locale.US, "%.2f", it.totalToPay)}" }
@@ -394,10 +487,24 @@ fun SplitBillScreen(
         ) { transfer ->
           val key = "${transfer.fromParticipant.id}_${transfer.toParticipant.id}_${transfer.amount}"
           val settled = key in state.settledTransferKeys
-          Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f)), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)) {
-            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+          Card(
+            Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(1.dp, if (settled) semantic.income.copy(alpha = 0.35f) else semantic.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+          ) {
+            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
               Column(Modifier.weight(1f)) { Text(transfer.fromParticipant.name, fontWeight = FontWeight.SemiBold); Text("pays ${transfer.toParticipant.name}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-              Column(horizontalAlignment = Alignment.End) { Text(com.example.ui.components.CurrencyFormatter.formatFixed(transfer.amount, state.currencySymbol), fontWeight = FontWeight.Bold); TextButton(onClick = { if (settled) { state.settledPaymentReferences[key]?.let(onUndoSettlement); viewModel.toggleSettledTransfer(key) } else { transferPaymentSource = ""; pendingTransfer = PendingSplitTransfer(key, transfer.fromParticipant.id, transfer.toParticipant.id, transfer.amount) } }) { Text(if (settled) "Undo" else "Mark paid") }; state.settledPaymentSources[key]?.takeIf { settled }?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } }
+              Column(horizontalAlignment = Alignment.End) {
+                Text(
+                  com.example.ui.components.CurrencyFormatter.formatFixed(transfer.amount, state.currencySymbol),
+                  style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, fontFeatureSettings = "tnum"),
+                  color = if (settled) semantic.income else MaterialTheme.colorScheme.onSurface
+                )
+                TextButton(onClick = { if (settled) { state.settledPaymentReferences[key]?.let(onUndoSettlement); viewModel.toggleSettledTransfer(key) } else { transferPaymentSource = ""; pendingTransfer = PendingSplitTransfer(key, transfer.fromParticipant.id, transfer.toParticipant.id, transfer.amount) } }) { Text(if (settled) "Undo" else "Mark paid") }
+                state.settledPaymentSources[key]?.takeIf { settled }?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+              }
             }
           }
         }
@@ -405,7 +512,7 @@ fun SplitBillScreen(
           OutlinedButton(onClick = {
             val lines = breakdowns.joinToString("\n") { "${it.participant.name}: ${state.currencySymbol}${String.format(Locale.US, "%.2f", it.totalToPay)}" }
             clipboard.setText(AnnotatedString("Split Bill - ${state.billTitle}\nTotal: ${state.currencySymbol}${String.format(Locale.US, "%.2f", total)}\n$lines"))
-          }, Modifier.fillMaxWidth()) { Icon(Icons.AutoMirrored.Filled.Send, null); Spacer(Modifier.width(8.dp)); Text("Copy split summary") }
+          }, shape = RoundedCornerShape(14.dp), border = BorderStroke(1.dp, semantic.cardBorder), modifier = Modifier.fillMaxWidth()) { Icon(Icons.AutoMirrored.Filled.Send, null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("Copy split summary", fontWeight = FontWeight.SemiBold) }
         }
       }
     }
@@ -421,12 +528,26 @@ private fun SummaryMetric(label: String, value: String, contentColor: Color = Ma
 
 @Composable
 private fun EmptySplitCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, action: String, onAction: () -> Unit) {
-  Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .4f))) {
+  Card(
+    Modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(18.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    border = BorderStroke(1.dp, com.example.ui.theme.OmniFinCalcThemeTokens.colors.cardBorder),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+  ) {
     Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Icon(icon, null, Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+      Box(
+        modifier = Modifier
+          .size(48.dp)
+          .clip(CircleShape)
+          .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
+      ) {
+        Icon(icon, null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
+      }
       Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
       Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
-      Button(onClick = onAction) { Text(action) }
+      Button(onClick = onAction, shape = RoundedCornerShape(12.dp)) { Text(action, fontWeight = FontWeight.SemiBold) }
     }
   }
 }
@@ -454,7 +575,11 @@ private fun OcrScannerBottomSheet(
     }
   }
 
-  ModalBottomSheet(onDismissRequest = onDismiss) {
+  ModalBottomSheet(
+    onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surface,
+    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+  ) {
     Column(
       modifier = Modifier
         .fillMaxWidth()

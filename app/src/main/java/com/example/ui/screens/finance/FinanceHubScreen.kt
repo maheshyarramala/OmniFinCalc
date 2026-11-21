@@ -1,4 +1,5 @@
 package com.example.ui.screens.finance
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import com.example.ui.theme.performConfiguredHapticFeedback
 
 import androidx.compose.animation.AnimatedVisibility
@@ -120,17 +121,17 @@ private val TRANSACTION_TYPE_OPTIONS = listOf(
 )
 private val EXPENSE_CARD_SHAPE = RoundedCornerShape(16.dp)
 private val EXPENSE_ICON_BOX_SHAPE = RoundedCornerShape(10.dp)
-private val EXPENSE_PILL_SHAPE = RoundedCornerShape(6.dp)
-private val PROGRESS_BAR_SHAPE = RoundedCornerShape(3.dp)
-private val EXPENSE_CC_COLOR = Color(0xFFF43F5E)
-private val EXPENSE_CC_BG = Color(0xFFF43F5E).copy(alpha = 0.15f)
-private val EXPENSE_CC_BORDER = BorderStroke(0.5.dp, Color(0xFFF43F5E).copy(alpha = 0.45f))
-private val EXPENSE_CC_BILL_COLOR = Color(0xFF10B981)
-private val EXPENSE_CC_BILL_BG = Color(0xFF10B981).copy(alpha = 0.15f)
-private val EXPENSE_CC_BILL_BORDER = BorderStroke(0.5.dp, Color(0xFF10B981).copy(alpha = 0.45f))
-private val EXPENSE_INCOME_COLOR = Color(0xFF059669)
-private val EXPENSE_INCOME_BG = Color(0xFF10B981).copy(alpha = 0.15f)
-private val EXPENSE_EXPENSE_COLOR = Color(0xFFDC2626)
+private val EXPENSE_PILL_SHAPE = RoundedCornerShape(8.dp)
+private val PROGRESS_BAR_SHAPE = RoundedCornerShape(4.dp)
+private val EXPENSE_CC_COLOR = Color(0xFFE56B70)
+private val EXPENSE_CC_BG = Color(0xFFE56B70).copy(alpha = 0.13f)
+private val EXPENSE_CC_BORDER = BorderStroke(1.dp, Color(0xFFE56B70).copy(alpha = 0.35f))
+private val EXPENSE_CC_BILL_COLOR = Color(0xFF16A879)
+private val EXPENSE_CC_BILL_BG = Color(0xFF16A879).copy(alpha = 0.13f)
+private val EXPENSE_CC_BILL_BORDER = BorderStroke(1.dp, Color(0xFF16A879).copy(alpha = 0.35f))
+private val EXPENSE_INCOME_COLOR = Color(0xFF16A879)
+private val EXPENSE_INCOME_BG = Color(0xFF16A879).copy(alpha = 0.13f)
+private val EXPENSE_EXPENSE_COLOR = Color(0xFFE56B70)
 
 @Immutable
 private data class SpendingAnalyticsRow(
@@ -708,8 +709,10 @@ fun FinanceHubScreen(
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.LongPress)
               viewModel.setShowAddExpense(true)
             },
+            shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
             modifier = Modifier.testTag("add_expense_fab")
           ) {
             Icon(Icons.Default.Add, contentDescription = "Log Expense")
@@ -721,8 +724,10 @@ fun FinanceHubScreen(
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.LongPress)
               showAddCreditCardDialog = true
             },
-            containerColor = Color(0xFFE11D48),
-            contentColor = Color.White,
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
             modifier = Modifier.testTag("add_credit_card_fab")
           ) {
             Icon(Icons.Default.AddCard, contentDescription = "Add Credit Card")
@@ -734,8 +739,10 @@ fun FinanceHubScreen(
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.LongPress)
               viewModel.setShowAddSubscription(true)
             },
-            containerColor = Color(0xFF6366F1),
-            contentColor = Color.White,
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
             modifier = Modifier.testTag("add_sub_fab")
           ) {
             Icon(Icons.Default.Add, contentDescription = "Add Subscription")
@@ -747,8 +754,10 @@ fun FinanceHubScreen(
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.LongPress)
               viewModel.setShowAddTrip(true)
             },
-            containerColor = Color(0xFF0D9488),
-            contentColor = Color.White,
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
             modifier = Modifier.testTag("add_trip_fab")
           ) {
             Icon(Icons.Default.AddLocationAlt, contentDescription = "Add Trip")
@@ -875,7 +884,9 @@ fun FinanceHubScreen(
         ScrollableTabRow(
         selectedTabIndex = uiState.selectedTab.ordinal,
         edgePadding = 12.dp,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.primary,
+        divider = { HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)) },
         modifier = Modifier.fillMaxWidth().testTag("finance_tabs")
       ) {
         FinanceTab.values().forEach { tab ->
@@ -887,14 +898,25 @@ fun FinanceHubScreen(
             FinanceTab.SPLIT_BILL -> Icons.Default.CallSplit
             FinanceTab.TRIPS -> Icons.Default.FlightTakeoff
           }
+          val isSelected = uiState.selectedTab == tab
           Tab(
-            selected = uiState.selectedTab == tab,
+            selected = isSelected,
             onClick = {
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
               viewModel.selectTab(tab)
             },
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-            text = { Text(tab.title, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            text = {
+              Text(
+                text = tab.title,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 11.5.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            },
             modifier = Modifier.testTag("finance_tab_${tab.name.lowercase()}")
           )
         }
@@ -1758,7 +1780,7 @@ private fun ExpensesSection(
       val parsed = try {
         Color(android.graphics.Color.parseColor(cat.colorHex))
       } catch (_: Exception) {
-        Color(0xFF6366F1)
+        Color(0xFF3478F6)
       }
       cat.name.lowercase() to parsed
     }
@@ -1827,11 +1849,14 @@ private fun ExpensesSection(
     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
     verticalArrangement = Arrangement.spacedBy(8.dp)
   ) {
-    // Total Net Balance Dashboard Banner
+    // Total Net Balance Dashboard Banner (Refined Sleek Banking Card — No Dominant Purple Gradient)
     item(key = "total_net_balance_card", contentType = "balance_hero") {
+      val semantic = OmniFinCalcThemeTokens.colors
+      val isPrivacy = CurrencyFormatter.isPrivacyModeEnabled
       Card(
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier
           .fillMaxWidth()
@@ -1842,102 +1867,100 @@ private fun ExpensesSection(
             .fillMaxWidth()
             .background(
               Brush.linearGradient(
-                colors = listOf(
-                  Color(0xFF1E1B4B), // Deep midnight indigo
-                  Color(0xFF312E81), // Rich royal indigo
-                  Color(0xFF4338CA)  // Radiant electric indigo
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(1000f, 1000f)
+                colors = listOf(semantic.heroStart, semantic.heroEnd)
               )
             )
-            .padding(20.dp)
+            .padding(horizontal = 18.dp, vertical = 16.dp)
         ) {
           Column(modifier = Modifier.fillMaxWidth()) {
-            // Header row with Icon, Label and Live Indicator Pill
+            // Header row: Subtle Wallet Icon, Title, and Privacy Toggle
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically
             ) {
-              Row(verticalAlignment = Alignment.CenterVertically) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+              ) {
                 Box(
                   modifier = Modifier
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.18f)),
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.White.copy(alpha = 0.12f)),
                   contentAlignment = Alignment.Center
                 ) {
                   Icon(
                     Icons.Default.AccountBalanceWallet,
                     contentDescription = null,
-                    tint = Color(0xFFA5B4FC),
+                    tint = Color.White,
                     modifier = Modifier.size(17.dp)
                   )
                 }
-                Spacer(modifier = Modifier.width(9.dp))
-                Text(
-                  text = "Total Net Balance",
-                  style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.3.sp
-                  ),
-                  color = Color(0xFFE0E7FF)
-                )
-              }
-
-              // Live Funds Badge
-              Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color(0xFF10B981).copy(alpha = 0.22f),
-                border = BorderStroke(1.dp, Color(0xFF34D399).copy(alpha = 0.45f))
-              ) {
-                Row(
-                  modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
-                  verticalAlignment = Alignment.CenterVertically
-                ) {
-                  Box(
-                    modifier = Modifier
-                      .size(6.dp)
-                      .clip(CircleShape)
-                      .background(Color(0xFF34D399))
-                  )
-                  Spacer(modifier = Modifier.width(5.dp))
+                Column {
                   Text(
-                    text = "Live Funds",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF6EE7B7)
+                    text = "TOTAL NET BALANCE",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                      fontWeight = FontWeight.SemiBold,
+                      letterSpacing = 0.5.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.72f)
+                  )
+                  Text(
+                    text = "Live across ${bankAndCashAccounts.size} account${if (bankAndCashAccounts.size == 1) "" else "s"}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.52f)
                   )
                 }
               }
+
+              IconButton(
+                onClick = {
+                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                  CurrencyFormatter.isPrivacyModeEnabled = !CurrencyFormatter.isPrivacyModeEnabled
+                },
+                modifier = Modifier
+                  .size(36.dp)
+                  .testTag("finance_hero_privacy_toggle")
+              ) {
+                Icon(
+                  imageVector = if (isPrivacy) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                  contentDescription = if (isPrivacy) "Show balances" else "Hide balances",
+                  tint = Color.White.copy(alpha = 0.85f),
+                  modifier = Modifier.size(19.dp)
+                )
+              }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Main Balance Number: Bright, glowing white typography
             Text(
               text = CurrencyFormatter.format(totalNetBalance),
-              style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Black,
-                letterSpacing = (-0.5).sp
+              style = MaterialTheme.typography.displayMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontFeatureSettings = "tnum"
               ),
-              color = Color.White
+              color = Color.White,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Income and Expense Stat Chips - high contrast, glowing vibrant badges
+            // Compact, refined Income and Expense summary chips
             Row(
-              modifier = Modifier.fillMaxWidth(),
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
               horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-              // Total Income Chip
               Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = Color.White.copy(alpha = 0.12f),
-                border = BorderStroke(1.dp, Color(0xFF34D399).copy(alpha = 0.35f)),
-                modifier = Modifier.weight(1f)
+                color = Color.White.copy(alpha = 0.09f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
               ) {
                 Row(
                   modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -1945,31 +1968,33 @@ private fun ExpensesSection(
                 ) {
                   Box(
                     modifier = Modifier
-                      .size(28.dp)
-                      .clip(CircleShape)
-                      .background(Color(0xFF059669).copy(alpha = 0.35f)),
+                      .size(26.dp)
+                      .clip(RoundedCornerShape(8.dp))
+                      .background(Color(0xFF35C99A).copy(alpha = 0.20f)),
                     contentAlignment = Alignment.Center
                   ) {
                     Icon(
                       Icons.Default.ArrowDownward,
                       contentDescription = null,
-                      tint = Color(0xFF34D399),
-                      modifier = Modifier.size(16.dp)
+                      tint = Color(0xFF35C99A),
+                      modifier = Modifier.size(15.dp)
                     )
                   }
                   Spacer(modifier = Modifier.width(8.dp))
                   Column(modifier = Modifier.weight(1f)) {
                     Text(
-                      text = "Total Income",
-                      fontSize = 10.sp,
+                      text = "Income",
+                      fontSize = 10.5.sp,
                       fontWeight = FontWeight.Medium,
-                      color = Color.White.copy(alpha = 0.75f)
+                      color = Color.White.copy(alpha = 0.70f)
                     )
                     Text(
-                      text = "+${CurrencyFormatter.formatWhole(totalIncome)}",
-                      fontSize = 12.sp,
-                      fontWeight = FontWeight.ExtraBold,
-                      color = Color(0xFF34D399),
+                      text = if (isPrivacy) CurrencyFormatter.formatWhole(totalIncome) else "+${CurrencyFormatter.formatWhole(totalIncome)}",
+                      style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontFeatureSettings = "tnum"
+                      ),
+                      color = Color(0xFF35C99A),
                       maxLines = 1,
                       softWrap = false,
                       overflow = TextOverflow.Ellipsis
@@ -1978,12 +2003,13 @@ private fun ExpensesSection(
                 }
               }
 
-              // Total Expenses Chip
               Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = Color.White.copy(alpha = 0.12f),
-                border = BorderStroke(1.dp, Color(0xFFF87171).copy(alpha = 0.35f)),
-                modifier = Modifier.weight(1f)
+                color = Color.White.copy(alpha = 0.09f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+                modifier = Modifier
+                  .weight(1f)
+                  .fillMaxHeight()
               ) {
                 Row(
                   modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -1991,31 +2017,33 @@ private fun ExpensesSection(
                 ) {
                   Box(
                     modifier = Modifier
-                      .size(28.dp)
-                      .clip(CircleShape)
-                      .background(Color(0xFFDC2626).copy(alpha = 0.35f)),
+                      .size(26.dp)
+                      .clip(RoundedCornerShape(8.dp))
+                      .background(Color(0xFFF17B83).copy(alpha = 0.20f)),
                     contentAlignment = Alignment.Center
                   ) {
                     Icon(
                       Icons.Default.ArrowUpward,
                       contentDescription = null,
-                      tint = Color(0xFFF87171),
-                      modifier = Modifier.size(16.dp)
+                      tint = Color(0xFFF17B83),
+                      modifier = Modifier.size(15.dp)
                     )
                   }
                   Spacer(modifier = Modifier.width(8.dp))
                   Column(modifier = Modifier.weight(1f)) {
                     Text(
-                      text = "Total Expenses",
-                      fontSize = 10.sp,
+                      text = "Expenses",
+                      fontSize = 10.5.sp,
                       fontWeight = FontWeight.Medium,
-                      color = Color.White.copy(alpha = 0.75f)
+                      color = Color.White.copy(alpha = 0.70f)
                     )
                     Text(
-                      text = "-${CurrencyFormatter.formatWhole(totalExpense)}",
-                      fontSize = 12.sp,
-                      fontWeight = FontWeight.ExtraBold,
-                      color = Color(0xFFF87171),
+                      text = if (isPrivacy) CurrencyFormatter.formatWhole(totalExpense) else "-${CurrencyFormatter.formatWhole(totalExpense)}",
+                      style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontFeatureSettings = "tnum"
+                      ),
+                      color = Color(0xFFF17B83),
                       maxLines = 1,
                       softWrap = false,
                       overflow = TextOverflow.Ellipsis
@@ -2066,17 +2094,22 @@ private fun ExpensesSection(
             onAddAccountClick()
           },
           shape = RoundedCornerShape(10.dp),
+          colors = ButtonDefaults.filledTonalButtonColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.primary
+          ),
           contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
           modifier = Modifier.defaultMinSize(minHeight = 36.dp)
         ) {
           Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(15.dp))
           Spacer(modifier = Modifier.width(4.dp))
-          Text("+ Account", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
+          Text("Account", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false)
         }
       }
     }
 
     item(key = "accounts_carousel_list", contentType = "accounts_carousel") {
+      val semantic = OmniFinCalcThemeTokens.colors
       LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth()
@@ -2084,17 +2117,21 @@ private fun ExpensesSection(
         items(bankAndCashAccounts, key = { it.account.id }, contentType = { "account_card" }) { accWithBal ->
           val isSelected = selectedAccountFilterId == accWithBal.account.id
           Card(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(
               containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f)
               } else {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                MaterialTheme.colorScheme.surface
               }
             ),
-            border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
+            border = BorderStroke(
+              width = if (isSelected) 1.5.dp else 1.dp,
+              color = if (isSelected) MaterialTheme.colorScheme.primary else semantic.cardBorder
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             modifier = Modifier
-              .width(200.dp)
+              .width(196.dp)
               .clickable {
                 haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onOpenAccountDetails(accWithBal.account)
@@ -2107,26 +2144,26 @@ private fun ExpensesSection(
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Surface(
-                  shape = RoundedCornerShape(6.dp),
-                  color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                  shape = RoundedCornerShape(8.dp),
+                  color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                   Text(
                     text = accWithBal.account.accountType,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.5.dp)
                   )
                 }
 
                 if (isSelected) {
                   Surface(
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.primary
                   ) {
                     Text(
                       text = "Filtered",
-                      fontSize = 9.sp,
+                      fontSize = 9.5.sp,
                       fontWeight = FontWeight.Bold,
                       color = MaterialTheme.colorScheme.onPrimary,
                       modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -2141,17 +2178,16 @@ private fun ExpensesSection(
                     },
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                   )
                 }
               }
 
-              Spacer(modifier = Modifier.height(6.dp))
+              Spacer(modifier = Modifier.height(8.dp))
 
               Text(
                 text = accWithBal.account.bankName,
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -2167,13 +2203,15 @@ private fun ExpensesSection(
                 )
                 Text(
                   text = CurrencyFormatter.formatWhole(accWithBal.openingBalance),
-                  fontSize = 10.5.sp,
-                  fontWeight = FontWeight.SemiBold,
+                  style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontFeatureSettings = "tnum"
+                  ),
                   color = MaterialTheme.colorScheme.onSurface
                 )
               }
 
-              Spacer(modifier = Modifier.height(6.dp))
+              Spacer(modifier = Modifier.height(8.dp))
 
               Text(
                 text = "Current Balance",
@@ -2182,9 +2220,13 @@ private fun ExpensesSection(
               )
               Text(
                 text = CurrencyFormatter.format(accWithBal.currentBalance),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = if (accWithBal.currentBalance >= 0) Color(0xFF059669) else Color(0xFFDC2626)
+                style = MaterialTheme.typography.titleMedium.copy(
+                  fontWeight = FontWeight.ExtraBold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = if (accWithBal.currentBalance >= 0) semantic.income else semantic.expense,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
               )
             }
           }
@@ -2253,13 +2295,13 @@ private fun ExpensesSection(
                   modifier = Modifier
                     .size(34.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF6366F1).copy(alpha = 0.15f)),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                   contentAlignment = Alignment.Center
                 ) {
                   Icon(
                     Icons.Default.CreditCard,
                     contentDescription = null,
-                    tint = Color(0xFF6366F1),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
                   )
                 }
@@ -2595,22 +2637,13 @@ private fun ExpensesSection(
                 selected = selected,
                 onClick = { selectedTransactionPeriod = period },
                 label = { Text(label, maxLines = 1, softWrap = false, fontWeight = FontWeight.SemiBold) },
+                shape = RoundedCornerShape(12.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                  selectedContainerColor = when (period) {
-                    "WEEK" -> Color(0xFFDBEAFE)
-                    "MONTH" -> Color(0xFFD1FAE5)
-                    "LAST_MONTH" -> Color(0xFFFFEDD5)
-                    else -> Color(0xFFEDE9FE)
-                  },
-                  selectedLabelColor = when (period) {
-                    "WEEK" -> Color(0xFF1D4ED8)
-                    "MONTH" -> Color(0xFF047857)
-                    "LAST_MONTH" -> Color(0xFFC2410C)
-                    else -> Color(0xFF5B21B6)
-                  },
-                  selectedLeadingIconColor = MaterialTheme.colorScheme.primary
+                  selectedContainerColor = MaterialTheme.colorScheme.primary,
+                  selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                  selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                border = BorderStroke(1.dp, if (selected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant)
+                border = BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
               )
             }
           }
@@ -2652,11 +2685,12 @@ private fun ExpensesSection(
               selected = allSelected,
               onClick = { selectedTransactionCategory = null },
               label = { Text("All Categories", maxLines = 1, softWrap = false, fontWeight = FontWeight.SemiBold) },
+              shape = RoundedCornerShape(12.dp),
               colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = Color(0xFFEDE9FE),
-                selectedLabelColor = Color(0xFF5B21B6)
+                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
               ),
-              border = BorderStroke(1.dp, if (allSelected) Color(0xFF8B5CF6) else MaterialTheme.colorScheme.outlineVariant)
+              border = BorderStroke(1.dp, if (allSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
             )
             transactionCategories.forEach { category ->
               val selected = selectedTransactionCategory.equals(category, ignoreCase = true)
@@ -2726,7 +2760,7 @@ private fun ExpensesSection(
         contentType = { "expense_item" }
       ) { expense ->
         val isCc = expense.bankAccountId in creditCardAccountIds
-        val catColor = categoryColorMap[expense.categoryName.lowercase()] ?: Color(0xFF6366F1)
+        val catColor = categoryColorMap[expense.categoryName.lowercase()] ?: Color(0xFF3478F6)
         val onItemClick = remember(expense.id, onSelectExpense) { { onSelectExpense(expense) } }
         ExpenseItemCard(
           expense = expense,
@@ -2789,7 +2823,7 @@ private fun ExpensesSection(
 @Composable
 private fun ExpenseItemCard(
   expense: ExpenseRecord,
-  catColor: Color = Color(0xFF6366F1),
+  catColor: Color = Color(0xFF3478F6),
   isCreditCard: Boolean = false,
   onClick: () -> Unit
 ) {
@@ -3006,9 +3040,9 @@ private fun TransactionDetailsDialog(
   }
   val catColor = remember(matchedCat) {
     try {
-      matchedCat?.let { Color(android.graphics.Color.parseColor(it.colorHex)) } ?: Color(0xFF6366F1)
+      matchedCat?.let { Color(android.graphics.Color.parseColor(it.colorHex)) } ?: Color(0xFF3478F6)
     } catch (e: Exception) {
-      Color(0xFF6366F1)
+      Color(0xFF3478F6)
     }
   }
   val isTransfer = expense.type == "TRANSFER_IN" || expense.type == "TRANSFER_OUT"
@@ -3420,7 +3454,7 @@ private fun SpendingAnalyticsCard(
       val rawColor = try {
         Color(android.graphics.Color.parseColor(cat.colorHex))
       } catch (_: Exception) {
-        Color(0xFF6366F1)
+        Color(0xFF3478F6)
       }
       val lum = (0.2126f * rawColor.red) + (0.7152f * rawColor.green) + (0.0722f * rawColor.blue)
       val visibleColor = if (isDarkSurface && lum < 0.14f) {
@@ -4391,9 +4425,11 @@ private fun TripCardItem(
       }
 
       // Live Remaining Budget Highlight Card
+      val tripSemantic = OmniFinCalcThemeTokens.colors
       Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = if (isOverBudget) Color(0xFFFEE2E2) else Color(0xFFCCFBF1)
+        shape = RoundedCornerShape(14.dp),
+        color = if (isOverBudget) tripSemantic.expenseContainer else tripSemantic.incomeContainer,
+        border = BorderStroke(1.dp, (if (isOverBudget) tripSemantic.expense else tripSemantic.income).copy(alpha = 0.25f))
       ) {
         Row(
           modifier = Modifier
@@ -4407,14 +4443,16 @@ private fun TripCardItem(
               text = if (isOverBudget) "OVER BUDGET" else "REMAINING BUDGET",
               fontSize = 10.sp,
               fontWeight = FontWeight.Bold,
-              color = if (isOverBudget) Color(0xFFB91C1C) else Color(0xFF0F766E),
+              color = if (isOverBudget) tripSemantic.expense else tripSemantic.income,
               letterSpacing = 0.8.sp
             )
             Text(
               text = if (isOverBudget) CurrencyFormatter.format(spent - trip.budget) else CurrencyFormatter.format(remaining),
-              fontSize = 16.sp,
-              fontWeight = FontWeight.ExtraBold,
-              color = if (isOverBudget) Color(0xFFB91C1C) else Color(0xFF0F766E)
+              style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontFeatureSettings = "tnum"
+              ),
+              color = if (isOverBudget) tripSemantic.expense else tripSemantic.income
             )
           }
           Column(horizontalAlignment = Alignment.End) {
@@ -5829,6 +5867,7 @@ private fun MonthlyBudgetCard(
   limit: Double,
   onEditBudget: () -> Unit
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val ratio = if (limit > 0) (spent / limit).toFloat() else 0f
   val progress = ratio.coerceIn(0f, 1f)
   val isOver80 = ratio >= 0.8f && ratio < 1.0f
@@ -5836,17 +5875,18 @@ private fun MonthlyBudgetCard(
   val remaining = limit - spent
 
   val progressColor = when {
-    isOver100 -> Color(0xFFEF4444)
-    isOver80 -> Color(0xFFF59E0B)
-    else -> Color(0xFF10B981)
+    isOver100 -> semantic.expense
+    isOver80 -> semantic.warning
+    else -> semantic.income
   }
 
   Card(
-    shape = RoundedCornerShape(20.dp),
+    shape = RoundedCornerShape(18.dp),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     ),
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    border = BorderStroke(1.dp, semantic.cardBorder),
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier
       .fillMaxWidth()
       .testTag("monthly_budget_card")
@@ -5854,7 +5894,7 @@ private fun MonthlyBudgetCard(
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(18.dp),
+        .padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
       Row(
@@ -5865,16 +5905,16 @@ private fun MonthlyBudgetCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
           Box(
             modifier = Modifier
-              .size(36.dp)
-              .clip(CircleShape)
-              .background(progressColor.copy(alpha = 0.15f)),
+              .size(34.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(progressColor.copy(alpha = 0.13f)),
             contentAlignment = Alignment.Center
           ) {
             Icon(
               Icons.Default.Speed,
               contentDescription = null,
               tint = progressColor,
-              modifier = Modifier.size(20.dp)
+              modifier = Modifier.size(18.dp)
             )
           }
           Spacer(modifier = Modifier.width(10.dp))
@@ -5886,7 +5926,7 @@ private fun MonthlyBudgetCard(
             )
             Text(
               text = "Target: ${CurrencyFormatter.format(limit)}",
-              fontSize = 11.sp,
+              style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           }
@@ -5894,7 +5934,7 @@ private fun MonthlyBudgetCard(
 
         IconButton(
           onClick = onEditBudget,
-          modifier = Modifier.size(32.dp)
+          modifier = Modifier.size(36.dp)
         ) {
           Icon(
             Icons.Default.Edit,
@@ -5914,28 +5954,32 @@ private fun MonthlyBudgetCard(
         Column {
           Text(
             text = "Total Spent This Month",
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
           Text(
             text = CurrencyFormatter.format(spent),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = if (isOver100) Color(0xFFEF4444) else MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.titleLarge.copy(
+              fontWeight = FontWeight.ExtraBold,
+              fontFeatureSettings = "tnum"
+            ),
+            color = if (isOver100) semantic.expense else MaterialTheme.colorScheme.onSurface
           )
         }
 
         Column(horizontalAlignment = Alignment.End) {
           Text(
             text = if (isOver100) "Over Budget" else "Remaining",
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
           Text(
             text = if (isOver100) "+${CurrencyFormatter.format(spent - limit)}" else CurrencyFormatter.format(remaining),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isOver100) Color(0xFFEF4444) else Color(0xFF10B981)
+            style = MaterialTheme.typography.titleSmall.copy(
+              fontWeight = FontWeight.Bold,
+              fontFeatureSettings = "tnum"
+            ),
+            color = if (isOver100) semantic.expense else semantic.income
           )
         }
       }
@@ -5944,50 +5988,50 @@ private fun MonthlyBudgetCard(
         progress = { progress },
         modifier = Modifier
           .fillMaxWidth()
-          .height(8.dp)
+          .height(7.dp)
           .clip(RoundedCornerShape(4.dp)),
         color = progressColor,
         trackColor = MaterialTheme.colorScheme.surfaceVariant
       )
 
-      // Alert Warning Banner when >= 80% or >= 100%
+      // Theme-adaptive Alert Warning Banner when >= 80% or >= 100%
       if (isOver100) {
         Surface(
           shape = RoundedCornerShape(10.dp),
-          color = Color(0xFFFEE2E2),
+          color = semantic.expenseContainer,
+          border = BorderStroke(1.dp, semantic.expense.copy(alpha = 0.25f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFB91C1C), modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.Warning, contentDescription = null, tint = semantic.expense, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = "🚨 Warning: You have exceeded your monthly budget by ${CurrencyFormatter.format(spent - limit)} (${(ratio * 100).toInt()}%)!",
-              fontSize = 11.5.sp,
-              fontWeight = FontWeight.SemiBold,
-              color = Color(0xFFB91C1C)
+              text = "Exceeded monthly budget by ${CurrencyFormatter.format(spent - limit)} (${(ratio * 100).toInt()}%).",
+              style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+              color = semantic.expense
             )
           }
         }
       } else if (isOver80) {
         Surface(
           shape = RoundedCornerShape(10.dp),
-          color = Color(0xFFFEF3C7),
+          color = semantic.warningContainer,
+          border = BorderStroke(1.dp, semantic.warning.copy(alpha = 0.25f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
           ) {
-            Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFB45309), modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.Info, contentDescription = null, tint = semantic.warning, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = "⚠️ Caution: You have reached ${(ratio * 100).toInt()}% of your monthly target limit.",
-              fontSize = 11.5.sp,
-              fontWeight = FontWeight.SemiBold,
-              color = Color(0xFFB45309)
+              text = "You have reached ${(ratio * 100).toInt()}% of your monthly target limit.",
+              style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+              color = semantic.warning
             )
           }
         }
@@ -6075,16 +6119,19 @@ private fun SubscriptionsSection(
     verticalArrangement = Arrangement.spacedBy(12.dp)
   ) {
     item(key = "subscriptions_header", contentType = "subscriptions_header") {
+      val semantic = OmniFinCalcThemeTokens.colors
       Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-          containerColor = Color(0xFF6366F1).copy(alpha = 0.12f)
+          containerColor = MaterialTheme.colorScheme.surface
         ),
+        border = BorderStroke(1.dp, semantic.cardBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier.fillMaxWidth()
       ) {
         Column(
-          modifier = Modifier.padding(18.dp),
-          verticalArrangement = Arrangement.spacedBy(8.dp)
+          modifier = Modifier.padding(16.dp),
+          verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6095,15 +6142,15 @@ private fun SubscriptionsSection(
               Box(
                 modifier = Modifier
                   .size(36.dp)
-                  .clip(CircleShape)
-                  .background(Color(0xFF6366F1).copy(alpha = 0.2f)),
+                  .clip(RoundedCornerShape(10.dp))
+                  .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
               ) {
                 Icon(
                   Icons.Default.EventRepeat,
                   contentDescription = null,
-                  tint = Color(0xFF6366F1),
-                  modifier = Modifier.size(20.dp)
+                  tint = MaterialTheme.colorScheme.primary,
+                  modifier = Modifier.size(19.dp)
                 )
               }
               Spacer(modifier = Modifier.width(10.dp))
@@ -6121,7 +6168,7 @@ private fun SubscriptionsSection(
             }
           }
 
-          HorizontalDivider(color = Color(0xFF6366F1).copy(alpha = 0.2f))
+          HorizontalDivider(color = semantic.divider)
 
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -6129,23 +6176,29 @@ private fun SubscriptionsSection(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Column {
-              Text("Total Monthly Commitments", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+              Text("Total Monthly Commitments", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
               Text(
                 text = CurrencyFormatter.format(totalMonthlyBills),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4F46E5)
+                style = MaterialTheme.typography.titleLarge.copy(
+                  fontWeight = FontWeight.ExtraBold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = MaterialTheme.colorScheme.primary
               )
             }
 
             FilledTonalButton(
               onClick = onAddSubscriptionClick,
               shape = RoundedCornerShape(12.dp),
+              colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary
+              ),
               contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
               Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
               Spacer(modifier = Modifier.width(4.dp))
-              Text("+ Add Bill", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+              Text("Add Bill", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
           }
         }
@@ -6155,10 +6208,11 @@ private fun SubscriptionsSection(
     if (subscriptions.isEmpty()) {
       item(key = "empty_subscriptions", contentType = "empty_state") {
         Card(
-          shape = RoundedCornerShape(16.dp),
+          shape = RoundedCornerShape(18.dp),
           colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            containerColor = MaterialTheme.colorScheme.surface
           ),
+          border = BorderStroke(1.dp, OmniFinCalcThemeTokens.colors.cardBorder),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(
@@ -6170,19 +6224,19 @@ private fun SubscriptionsSection(
             Icon(
               Icons.Default.Schedule,
               contentDescription = null,
-              modifier = Modifier.size(48.dp),
+              modifier = Modifier.size(44.dp),
               tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
               text = "No recurring bills tracked yet",
-              fontWeight = FontWeight.Medium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              fontWeight = FontWeight.SemiBold,
+              color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-              text = "Tap '+ Add Bill' to track Netflix, Rent, SIP, WiFi, Gym, etc.",
+              text = "Tap 'Add Bill' to track Netflix, Rent, SIP, WiFi, Gym, etc.",
               fontSize = 12.sp,
-              color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+              color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           }
         }
@@ -6209,6 +6263,7 @@ private fun SubscriptionItemCard(
   onClick: () -> Unit,
   onMarkPaid: () -> Unit
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val daysLeft = remember(sub.billingCycle, sub.dueDayOfMonth, sub.dueMonth, sub.dueDayOfWeek, today) {
     ChronoUnit.DAYS.between(
       today,
@@ -6231,7 +6286,7 @@ private fun SubscriptionItemCard(
     onClick = onClick,
     shape = RoundedCornerShape(16.dp),
     color = MaterialTheme.colorScheme.surface,
-    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+    border = BorderStroke(1.dp, semantic.cardBorder),
     modifier = Modifier.fillMaxWidth()
   ) {
     Column(
@@ -6253,14 +6308,14 @@ private fun SubscriptionItemCard(
             modifier = Modifier
               .size(40.dp)
               .clip(RoundedCornerShape(10.dp))
-              .background(Color(0xFF6366F1).copy(alpha = 0.15f)),
+              .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
           ) {
             Icon(
               Icons.Default.Receipt,
               contentDescription = null,
-              tint = Color(0xFF6366F1),
-              modifier = Modifier.size(20.dp)
+              tint = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.size(19.dp)
             )
           }
           Spacer(modifier = Modifier.width(10.dp))
@@ -6282,13 +6337,15 @@ private fun SubscriptionItemCard(
 
         Text(
           text = CurrencyFormatter.format(sub.amount),
-          fontWeight = FontWeight.ExtraBold,
-          fontSize = 16.sp,
-          color = Color(0xFF4F46E5)
+          style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.ExtraBold,
+            fontFeatureSettings = "tnum"
+          ),
+          color = MaterialTheme.colorScheme.primary
         )
       }
 
-      HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+      HorizontalDivider(color = semantic.divider)
 
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -6298,13 +6355,13 @@ private fun SubscriptionItemCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
           Surface(
             shape = RoundedCornerShape(8.dp),
-            color = if (isPaidThisCycle) Color(0xFFD1FAE5) else if (isUrgent) Color(0xFFFEF3C7) else MaterialTheme.colorScheme.surfaceVariant
+            color = if (isPaidThisCycle) semantic.incomeContainer else if (isUrgent) semantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant
           ) {
             Text(
               text = if (isPaidThisCycle) stringResource(com.example.R.string.subscription_paid_this_cycle) else statusLabel,
               fontSize = 10.5.sp,
               fontWeight = FontWeight.Bold,
-              color = if (isPaidThisCycle) Color(0xFF047857) else if (isUrgent) Color(0xFFB45309) else MaterialTheme.colorScheme.onSurfaceVariant,
+              color = if (isPaidThisCycle) semantic.income else if (isUrgent) semantic.warning else MaterialTheme.colorScheme.onSurfaceVariant,
               modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             )
           }
@@ -6375,7 +6432,8 @@ private fun SubscriptionDetailsDialog(
 
   AlertDialog(
     onDismissRequest = onDismiss,
-    shape = RoundedCornerShape(24.dp),
+    containerColor = MaterialTheme.colorScheme.surface,
+    shape = RoundedCornerShape(22.dp),
     title = {
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -6390,14 +6448,14 @@ private fun SubscriptionDetailsDialog(
           )
           Surface(
             shape = RoundedCornerShape(8.dp),
-            color = Color(0xFF6366F1).copy(alpha = 0.12f),
+            color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.padding(top = 4.dp)
           ) {
             Text(
               text = sub.billingCycle,
               fontSize = 11.sp,
               fontWeight = FontWeight.Bold,
-              color = Color(0xFF4F46E5),
+              color = MaterialTheme.colorScheme.primary,
               modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
             )
           }
@@ -6437,8 +6495,8 @@ private fun SubscriptionDetailsDialog(
       ) {
         Surface(
           shape = RoundedCornerShape(16.dp),
-          color = Color(0xFF6366F1).copy(alpha = 0.08f),
-          border = BorderStroke(1.dp, Color(0xFF6366F1).copy(alpha = 0.25f)),
+          color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
+          border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(
@@ -6447,9 +6505,11 @@ private fun SubscriptionDetailsDialog(
           ) {
             Text(
               text = "${CurrencyFormatter.format(sub.amount)} / ${sub.billingCycle.lowercase()}",
-              fontSize = 24.sp,
-              fontWeight = FontWeight.Black,
-              color = Color(0xFF4F46E5)
+              style = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontFeatureSettings = "tnum"
+              ),
+              color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
@@ -6467,15 +6527,16 @@ private fun SubscriptionDetailsDialog(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Text("Payment Status", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val statusSemantic = OmniFinCalcThemeTokens.colors
             Surface(
               shape = RoundedCornerShape(8.dp),
-              color = if (isPaidThisCycle) Color(0xFFD1FAE5) else if (isUrgent) Color(0xFFFEF3C7) else MaterialTheme.colorScheme.surfaceVariant
+              color = if (isPaidThisCycle) statusSemantic.incomeContainer else if (isUrgent) statusSemantic.warningContainer else MaterialTheme.colorScheme.surfaceVariant
             ) {
               Text(
                 text = statusLabel,
                 fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isPaidThisCycle) Color(0xFF047857) else if (isUrgent) Color(0xFFB45309) else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isPaidThisCycle) statusSemantic.income else if (isUrgent) statusSemantic.warning else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
               )
             }
@@ -6788,24 +6849,28 @@ private fun TripDailySpendingSpeedometer(
         verticalAlignment = Alignment.CenterVertically
       ) {
         Text("Daily Burn Rate Tracker", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+        val burnSemantic = OmniFinCalcThemeTokens.colors
         Surface(
           shape = RoundedCornerShape(8.dp),
-          color = if (isExceeding) Color(0xFFFEE2E2) else Color(0xFFCCFBF1)
+          color = if (isExceeding) burnSemantic.expenseContainer else burnSemantic.incomeContainer
         ) {
           Text(
             if (isExceeding) "Above target" else "On track",
             fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isExceeding) Color(0xFFB91C1C) else Color(0xFF0F766E),
+            fontWeight = FontWeight.SemiBold,
+            color = if (isExceeding) burnSemantic.expense else burnSemantic.income,
             modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
           )
         }
       }
+      val burnRateSemantic = OmniFinCalcThemeTokens.colors
       Text(
         "Spending ${CurrencyFormatter.format(dailyRate)}/day",
-        fontSize = 15.sp,
-        fontWeight = FontWeight.ExtraBold,
-        color = if (isExceeding) Color(0xFFEF4444) else Color(0xFF0D9488)
+        style = MaterialTheme.typography.titleMedium.copy(
+          fontWeight = FontWeight.Bold,
+          fontFeatureSettings = "tnum"
+        ),
+        color = if (isExceeding) burnRateSemantic.expense else burnRateSemantic.income
       )
       Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Daily target", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -6956,7 +7021,7 @@ private fun AddSubscriptionDialog(
     onDismissRequest = onDismiss,
     title = {
       Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Default.EventRepeat, contentDescription = null, tint = Color(0xFF6366F1))
+        Icon(Icons.Default.EventRepeat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(8.dp))
         Text("Track Recurring Bill")
       }
@@ -7330,14 +7395,16 @@ private fun CreditCardsSection(
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
     item(key = "credit_cards_summary", contentType = "credit_cards_summary") {
+      val semantic = OmniFinCalcThemeTokens.colors
       // Header Summary Card
       Card(
         modifier = Modifier.fillMaxWidth().testTag("credit_cards_summary_card"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+          containerColor = MaterialTheme.colorScheme.surface
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+        border = BorderStroke(1.dp, semantic.cardBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
       ) {
         Column(
           modifier = Modifier
@@ -7357,14 +7424,18 @@ private fun CreditCardsSection(
               )
               Text(
                 text = CurrencyFormatter.format(totalOutstanding),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.copy(fontFeatureSettings = "tnum"),
                 fontWeight = FontWeight.Bold,
-                color = if (totalOutstanding > 0) Color(0xFFF43F5E) else MaterialTheme.colorScheme.onSurface
+                color = if (totalOutstanding > 0) semantic.expense else MaterialTheme.colorScheme.onSurface
               )
             }
             FilledTonalButton(
               onClick = onAddCardClick,
               shape = RoundedCornerShape(12.dp),
+              colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary
+              ),
               modifier = Modifier.testTag("add_card_button")
             ) {
               Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -7513,13 +7584,13 @@ private fun CreditCardsSection(
           elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
           Column(modifier = Modifier.fillMaxWidth()) {
-            // Top Card Art Header
+            // Top Card Art Header (Sleek Deep Fintech Navy)
             Box(
               modifier = Modifier
                 .fillMaxWidth()
                 .background(
                   Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF1E293B), Color(0xFF334155), Color(0xFF1E1B4B))
+                    colors = listOf(Color(0xFF142138), Color(0xFF1C2F4E))
                   )
                 )
                 .padding(18.dp)

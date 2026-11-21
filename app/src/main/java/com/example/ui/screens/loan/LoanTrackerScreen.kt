@@ -42,6 +42,7 @@ import com.example.data.local.entity.LoanRecord
 import com.example.domain.calculator.LoanPrepaymentCalculator
 import com.example.ui.components.CurrencyFormatter
 import com.example.ui.components.NumberInputField
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -91,7 +92,8 @@ fun LoanTrackerScreen(
         onClick = { viewModel.setShowAddLoanDialog(true) },
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = CircleShape,
+        shape = RoundedCornerShape(16.dp),
+        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
         modifier = Modifier.testTag("btn_add_new_loan")
       ) {
         Icon(Icons.Default.Add, contentDescription = "Add New Loan")
@@ -227,7 +229,9 @@ fun LoanTrackerScreen(
   loanPendingEmiPayment?.let { loan ->
     AlertDialog(
       onDismissRequest = { loanPendingEmiPayment = null },
-      title = { Text("Select Account for EMI") },
+      containerColor = MaterialTheme.colorScheme.surface,
+      shape = RoundedCornerShape(22.dp),
+      title = { Text("Select Account for EMI", fontWeight = FontWeight.Bold) },
       text = {
         Column(
           modifier = Modifier
@@ -341,9 +345,11 @@ private fun LoanDashboardCard(
   monthlyOutflow: Double,
   totalPaid: Double
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Card(
-    shape = RoundedCornerShape(24.dp),
+    shape = RoundedCornerShape(22.dp),
     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier.fillMaxWidth()
   ) {
@@ -352,16 +358,10 @@ private fun LoanDashboardCard(
         .fillMaxWidth()
         .background(
           Brush.linearGradient(
-            colors = listOf(
-              Color(0xFF1E1B4B), // Deep midnight indigo
-              Color(0xFF312E81), // Royal indigo
-              Color(0xFF4338CA)  // Electric indigo
-            ),
-            start = Offset(0f, 0f),
-            end = Offset(1000f, 1000f)
+            colors = listOf(semantic.heroStart, semantic.heroEnd)
           )
         )
-        .padding(16.dp)
+        .padding(horizontal = 18.dp, vertical = 16.dp)
     ) {
       Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(
@@ -375,41 +375,41 @@ private fun LoanDashboardCard(
           ) {
             Box(
               modifier = Modifier
-                .size(30.dp)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.18f)),
+                .size(32.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White.copy(alpha = 0.12f)),
               contentAlignment = Alignment.Center
             ) {
               Icon(
                 Icons.Default.AccountBalance,
                 contentDescription = null,
-                tint = Color(0xFFA5B4FC),
+                tint = Color.White,
                 modifier = Modifier.size(17.dp)
               )
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Text(
-              text = "Total Principal Remaining",
-              style = MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.3.sp
+              text = "TOTAL PRINCIPAL REMAINING",
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.4.sp
               ),
-              color = Color(0xFFE0E7FF),
+              color = Color.White.copy(alpha = 0.72f),
               maxLines = 1,
               overflow = TextOverflow.Ellipsis
             )
           }
 
           Surface(
-            shape = RoundedCornerShape(10.dp),
-            color = Color.White.copy(alpha = 0.15f),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
+            shape = RoundedCornerShape(999.dp),
+            color = Color.White.copy(alpha = 0.12f),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.16f))
           ) {
             Text(
               text = "$activeLoansCount Active",
               fontSize = 11.sp,
               fontWeight = FontWeight.SemiBold,
-              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+              modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
               color = Color.White,
               maxLines = 1,
               softWrap = false
@@ -419,9 +419,9 @@ private fun LoanDashboardCard(
 
         Text(
           text = CurrencyFormatter.format(totalRemainingPrincipal),
-          style = MaterialTheme.typography.headlineMedium.copy(
-            fontWeight = FontWeight.Black,
-            letterSpacing = (-0.5).sp
+          style = MaterialTheme.typography.displaySmall.copy(
+            fontWeight = FontWeight.ExtraBold,
+            fontFeatureSettings = "tnum"
           ),
           color = Color.White,
           maxLines = 1,
@@ -429,29 +429,36 @@ private fun LoanDashboardCard(
         )
 
         Row(
-          modifier = Modifier.fillMaxWidth(),
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
           horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
           Surface(
             shape = RoundedCornerShape(14.dp),
-            color = Color.White.copy(alpha = 0.12f),
-            border = BorderStroke(1.dp, Color(0xFFF87171).copy(alpha = 0.35f)),
-            modifier = Modifier.weight(1f)
+            color = Color.White.copy(alpha = 0.09f),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+            modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
           ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(modifier = Modifier.padding(11.dp)) {
               Text(
                 text = "Monthly EMI Outflow",
-                fontSize = 10.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White.copy(alpha = 0.75f),
+                color = Color.White.copy(alpha = 0.70f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
+              Spacer(modifier = Modifier.height(2.dp))
               Text(
                 text = CurrencyFormatter.format(monthlyOutflow),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFFF87171),
+                style = MaterialTheme.typography.titleSmall.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = Color(0xFFF17B83),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
@@ -460,24 +467,29 @@ private fun LoanDashboardCard(
 
           Surface(
             shape = RoundedCornerShape(14.dp),
-            color = Color.White.copy(alpha = 0.12f),
-            border = BorderStroke(1.dp, Color(0xFF34D399).copy(alpha = 0.35f)),
-            modifier = Modifier.weight(1f)
+            color = Color.White.copy(alpha = 0.09f),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+            modifier = Modifier
+              .weight(1f)
+              .fillMaxHeight()
           ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(modifier = Modifier.padding(11.dp)) {
               Text(
                 text = "Principal Paid",
-                fontSize = 10.sp,
+                fontSize = 10.5.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White.copy(alpha = 0.75f),
+                color = Color.White.copy(alpha = 0.70f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
+              Spacer(modifier = Modifier.height(2.dp))
               Text(
                 text = CurrencyFormatter.format(totalPaid),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF34D399),
+                style = MaterialTheme.typography.titleSmall.copy(
+                  fontWeight = FontWeight.Bold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = Color(0xFF35C99A),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
               )
@@ -1859,12 +1871,12 @@ private fun getLoanCategoryIcon(category: String): ImageVector {
 
 private fun getLoanCategoryColor(category: String): Color {
   return when (category.uppercase()) {
-    "HOME" -> Color(0xFF3B82F6)
-    "CAR" -> Color(0xFFF59E0B)
-    "MOBILE" -> Color(0xFF8B5CF6)
-    "EDUCATION" -> Color(0xFF06B6D4)
-    "PERSONAL" -> Color(0xFF10B981)
-    else -> Color(0xFF6366F1)
+    "HOME" -> Color(0xFF3478F6)
+    "CAR" -> Color(0xFFE7A33E)
+    "MOBILE" -> Color(0xFF0EA5E9)
+    "EDUCATION" -> Color(0xFF14B8A6)
+    "PERSONAL" -> Color(0xFF16A879)
+    else -> Color(0xFF3478F6)
   }
 }
 

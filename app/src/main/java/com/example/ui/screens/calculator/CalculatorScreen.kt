@@ -2,6 +2,7 @@ package com.example.ui.screens.calculator
 import com.example.ui.theme.performConfiguredHapticFeedback
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -122,6 +123,7 @@ fun CalculatorScreen(
     }
 
     // Mode Toggle Toolbar (Scientific / Rad / History)
+    val semantic = com.example.ui.theme.OmniFinCalcThemeTokens.colors
     Row(
       modifier = Modifier
         .fillMaxWidth()
@@ -136,10 +138,24 @@ fun CalculatorScreen(
             haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
             viewModel.toggleScientific()
           },
-          label = { Text("Scientific", fontSize = 12.sp) },
+          label = { Text("Scientific", fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
           leadingIcon = {
             Icon(Icons.Default.Functions, contentDescription = null, modifier = Modifier.size(16.dp))
           },
+          shape = RoundedCornerShape(12.dp),
+          colors = FilterChipDefaults.filterChipColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedContainerColor = MaterialTheme.colorScheme.primary,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+          ),
+          border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = state.isScientific,
+            borderColor = semantic.cardBorder,
+            selectedBorderColor = MaterialTheme.colorScheme.primary
+          ),
           modifier = Modifier.testTag("toggle_scientific_button")
         )
 
@@ -150,19 +166,44 @@ fun CalculatorScreen(
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
               viewModel.toggleAngleUnit()
             },
-            label = { Text(if (state.isRadians) "RAD" else "DEG", fontSize = 12.sp) }
+            label = { Text(if (state.isRadians) "RAD" else "DEG", fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
+            shape = RoundedCornerShape(12.dp),
+            colors = FilterChipDefaults.filterChipColors(
+              containerColor = MaterialTheme.colorScheme.surface,
+              labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+              selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+              selectedLabelColor = MaterialTheme.colorScheme.primary
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+              enabled = true,
+              selected = state.isRadians,
+              borderColor = semantic.cardBorder,
+              selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+            )
           )
         }
       }
 
-      IconButton(
+      Surface(
         onClick = {
           haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
           viewModel.backspace()
         },
-        modifier = Modifier.testTag("backspace_button")
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, semantic.cardBorder),
+        modifier = Modifier
+          .size(44.dp)
+          .testTag("backspace_button")
       ) {
-        Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = "Backspace")
+        Box(contentAlignment = Alignment.Center) {
+          Icon(
+            Icons.AutoMirrored.Filled.Backspace,
+            contentDescription = "Backspace",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+          )
+        }
       }
     }
 
@@ -328,38 +369,50 @@ private fun CalcButton(
   isEqual: Boolean = false,
   onClick: () -> Unit
 ) {
+  val semantic = com.example.ui.theme.OmniFinCalcThemeTokens.colors
   val containerColor = when {
     isEqual -> MaterialTheme.colorScheme.primary
-    isAction -> Color(0xFFE11D48) // Red/Rose
-    isOperator -> MaterialTheme.colorScheme.secondaryContainer
+    isAction -> semantic.expenseContainer
+    isOperator -> MaterialTheme.colorScheme.primaryContainer
     isFunctional -> MaterialTheme.colorScheme.surfaceVariant
     else -> MaterialTheme.colorScheme.surface
   }
 
   val contentColor = when {
     isEqual -> MaterialTheme.colorScheme.onPrimary
-    isAction -> Color.White
-    isOperator -> MaterialTheme.colorScheme.onSecondaryContainer
+    isAction -> semantic.expense
+    isOperator -> MaterialTheme.colorScheme.primary
     isFunctional -> MaterialTheme.colorScheme.onSurfaceVariant
     else -> MaterialTheme.colorScheme.onSurface
   }
 
-  FilledTonalButton(
+  val borderStroke = when {
+    isEqual -> null
+    isAction -> BorderStroke(1.dp, semantic.expense.copy(alpha = 0.28f))
+    isOperator -> BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.22f))
+    else -> BorderStroke(1.dp, semantic.cardBorder)
+  }
+
+  Surface(
     onClick = onClick,
     shape = RoundedCornerShape(16.dp),
-    colors = ButtonDefaults.filledTonalButtonColors(
-      containerColor = containerColor,
-      contentColor = contentColor
-    ),
-    contentPadding = PaddingValues(0.dp),
+    color = containerColor,
+    contentColor = contentColor,
+    border = borderStroke,
     modifier = modifier
       .height(58.dp)
       .testTag("calc_btn_$text")
   ) {
-    Text(
-      text = text,
-      fontSize = if (text.length > 2) 16.sp else 22.sp,
-      fontWeight = if (isEqual || isOperator || isAction) FontWeight.Bold else FontWeight.Medium
-    )
+    Box(contentAlignment = Alignment.Center) {
+      Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge.copy(
+          fontSize = if (text.length > 2) 15.sp else 21.sp,
+          fontWeight = if (isEqual || isOperator || isAction) FontWeight.Bold else FontWeight.SemiBold,
+          fontFeatureSettings = "tnum"
+        ),
+        color = contentColor
+      )
+    }
   }
 }

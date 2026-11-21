@@ -25,6 +25,8 @@ data class FintechSemanticColors(
   val savingsContainer: Color,
   val warning: Color,
   val warningContainer: Color,
+  val elevatedSurface: Color,
+  val divider: Color,
   val heroStart: Color,
   val heroEnd: Color,
   val cardBorder: Color,
@@ -34,15 +36,17 @@ data class FintechSemanticColors(
 val LocalFintechColors = staticCompositionLocalOf {
   FintechSemanticColors(
     income = FinanceIncomeGreen,
-    incomeContainer = Color(0xFFECFDF5),
+    incomeContainer = Color(0xFFECF9F4),
     expense = FinanceExpenseCoral,
-    expenseContainer = Color(0xFFFEF2F2),
+    expenseContainer = Color(0xFFFDF0F1),
     savings = FinanceSavingsTeal,
-    savingsContainer = Color(0xFFF0FDFA),
+    savingsContainer = Color(0xFFEBF8F5),
     warning = FinanceWarningAmber,
-    warningContainer = Color(0xFFFFFBEB),
-    heroStart = NavyPrimary,
-    heroEnd = Color(0xFF1D3461),
+    warningContainer = Color(0xFFFEF6E7),
+    elevatedSurface = SurfaceVariantLight,
+    divider = OutlineVariantLight,
+    heroStart = Color(0xFF14213B),
+    heroEnd = Color(0xFF1F355C),
     cardBorder = OutlineVariantLight,
     isDark = false
   )
@@ -77,7 +81,7 @@ private val BaseDarkColorScheme =
     outline = OutlineDark,
     outlineVariant = OutlineVariantDark,
     error = FinanceExpenseCoralDark,
-    onError = Color(0xFF3F070A)
+    onError = Color(0xFF3A0B0E)
   )
 
 private val BaseLightColorScheme =
@@ -111,7 +115,7 @@ private val OmniFinCalcShapes = Shapes(
   small = RoundedCornerShape(12.dp),
   medium = RoundedCornerShape(16.dp),
   large = RoundedCornerShape(20.dp),
-  extraLarge = RoundedCornerShape(28.dp)
+  extraLarge = RoundedCornerShape(26.dp)
 )
 
 @Composable
@@ -129,20 +133,22 @@ fun OmniFinCalcTheme(
 
   val baseScheme = if (isDark) BaseDarkColorScheme else BaseLightColorScheme
   val primaryColor = if (isDark) themeState.accentTheme.primaryDark else themeState.accentTheme.primaryLight
-  val primaryContainerColor = primaryColor.copy(alpha = if (isDark) 0.22f else 0.12f)
-  val onPrimaryContainerColor = if (isDark) Color(0xFFEAF2FF) else NavyPrimary
+  val primaryContainerColor = primaryColor.copy(alpha = if (isDark) 0.20f else 0.11f)
+  val onPrimaryContainerColor = if (isDark) Color(0xFFE8F1FF) else NavyPrimary
 
-  val colorScheme = if (themeState.themeMode == AppThemeMode.AMOLED) {
+  val isAmoled = themeState.themeMode == AppThemeMode.AMOLED
+  val colorScheme = if (isAmoled) {
     baseScheme.copy(
       primary = primaryColor,
       primaryContainer = primaryContainerColor,
       onPrimaryContainer = onPrimaryContainerColor,
       background = Color(0xFF000000),
-      surface = Color(0xFF090D16),
-      surfaceVariant = Color(0xFF141B2B),
-      outlineVariant = Color(0xFF1E293B),
-      onBackground = Color(0xFFFFFFFF),
-      onSurface = Color(0xFFFFFFFF)
+      surface = Color(0xFF0C1322),
+      surfaceVariant = Color(0xFF141E33),
+      outline = Color(0xFF283652),
+      outlineVariant = Color(0xFF1C273D),
+      onBackground = Color(0xFFF5F7FC),
+      onSurface = Color(0xFFF5F7FC)
     )
   } else {
     baseScheme.copy(
@@ -155,30 +161,34 @@ fun OmniFinCalcTheme(
   val semanticColors = if (isDark) {
     FintechSemanticColors(
       income = FinanceIncomeGreenDark,
-      incomeContainer = Color(0xFF0D2E25),
+      incomeContainer = Color(0xFF102E27),
       expense = FinanceExpenseCoralDark,
-      expenseContainer = Color(0xFF3A161A),
+      expenseContainer = Color(0xFF35191F),
       savings = FinanceSavingsTealDark,
-      savingsContainer = Color(0xFF0D2E30),
+      savingsContainer = Color(0xFF102D2A),
       warning = FinanceWarningAmberDark,
-      warningContainer = Color(0xFF3A280A),
-      heroStart = Color(0xFF101B35),
-      heroEnd = Color(0xFF1A3566),
-      cardBorder = if (themeState.themeMode == AppThemeMode.AMOLED) Color(0xFF1F2937) else OutlineVariantDark,
+      warningContainer = Color(0xFF362811),
+      elevatedSurface = if (isAmoled) Color(0xFF141E33) else SurfaceVariantDark,
+      divider = if (isAmoled) Color(0xFF1C273D) else OutlineVariantDark,
+      heroStart = Color(0xFF142138),
+      heroEnd = Color(0xFF1C2F4E),
+      cardBorder = if (isAmoled) Color(0xFF1C273D) else OutlineVariantDark,
       isDark = true
     )
   } else {
     FintechSemanticColors(
       income = FinanceIncomeGreen,
-      incomeContainer = Color(0xFFECFDF5),
+      incomeContainer = Color(0xFFECF9F4),
       expense = FinanceExpenseCoral,
-      expenseContainer = Color(0xFFFEF2F2),
+      expenseContainer = Color(0xFFFDF0F1),
       savings = FinanceSavingsTeal,
-      savingsContainer = Color(0xFFF0FDFA),
+      savingsContainer = Color(0xFFEBF8F5),
       warning = FinanceWarningAmber,
-      warningContainer = Color(0xFFFFFBEB),
-      heroStart = NavyPrimary,
-      heroEnd = Color(0xFF1E3A6E),
+      warningContainer = Color(0xFFFEF6E7),
+      elevatedSurface = SurfaceVariantLight,
+      divider = OutlineVariantLight,
+      heroStart = Color(0xFF16243E),
+      heroEnd = Color(0xFF223961),
       cardBorder = OutlineVariantLight,
       isDark = false
     )

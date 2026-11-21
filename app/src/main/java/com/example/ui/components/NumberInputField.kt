@@ -54,11 +54,17 @@ fun NumberInputField(
         }
       },
       singleLine = true,
+      textStyle = MaterialTheme.typography.bodyLarge.copy(
+        fontWeight = FontWeight.SemiBold,
+        fontFeatureSettings = "tnum"
+      ),
       keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-      shape = RoundedCornerShape(12.dp),
+      shape = RoundedCornerShape(14.dp),
       colors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = MaterialTheme.colorScheme.primary,
-        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
       ),
       modifier = Modifier
         .fillMaxWidth()
@@ -73,7 +79,8 @@ fun NumberInputField(
         steps = sliderSteps,
         colors = SliderDefaults.colors(
           thumbColor = MaterialTheme.colorScheme.primary,
-          activeTrackColor = MaterialTheme.colorScheme.primary
+          activeTrackColor = MaterialTheme.colorScheme.primary,
+          inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         modifier = Modifier
           .fillMaxWidth()
@@ -86,18 +93,30 @@ fun NumberInputField(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
         presets.forEach { (title, addVal) ->
           SuggestionChip(
             onClick = { onPresetClick(addVal) },
-            label = { Text(title, style = MaterialTheme.typography.labelSmall) },
-            shape = RoundedCornerShape(8.dp),
+            label = {
+              Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall.copy(
+                  fontWeight = FontWeight.SemiBold,
+                  fontFeatureSettings = "tnum"
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+              )
+            },
+            shape = RoundedCornerShape(10.dp),
             colors = SuggestionChipDefaults.suggestionChipColors(
-              containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+              containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
             ),
-            border = null,
-            modifier = Modifier.height(28.dp)
+            border = androidx.compose.foundation.BorderStroke(
+              1.dp,
+              MaterialTheme.colorScheme.outlineVariant
+            ),
+            modifier = Modifier.height(30.dp)
           )
         }
       }

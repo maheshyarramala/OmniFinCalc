@@ -77,14 +77,17 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -312,7 +315,7 @@ fun MainScreen(
     AllCalculatorsHubSheet(
       onDismiss = { showHubSheet = false },
       items = listOf(
-        CalculatorHubItem("Dashboard", "Financial overview & charts", Icons.Default.Dashboard, Color(0xFF101B35)) {
+        CalculatorHubItem("Dashboard", "Financial overview & charts", Icons.Default.Dashboard, Color(0xFF1E3254)) {
           currentDestination = MainDestination.HOME
           showHubSheet = false
         },
@@ -320,22 +323,22 @@ fun MainScreen(
           currentDestination = MainDestination.ANALYTICS
           showHubSheet = false
         },
-        CalculatorHubItem("Expenses & Accounts", "Budget & bank balances", Icons.Default.Savings, Color(0xFF10B981)) {
+        CalculatorHubItem("Expenses & Accounts", "Budget & bank balances", Icons.Default.Savings, Color(0xFF16A879)) {
           currentDestination = MainDestination.FINANCE
           financeViewModel.selectTab(FinanceTab.EXPENSES)
           showHubSheet = false
         },
-        CalculatorHubItem("Credit Cards", "Cards, limits & bill alerts", Icons.Default.CreditCard, Color(0xFF6366F1)) {
+        CalculatorHubItem("Credit Cards", "Cards, limits & bill alerts", Icons.Default.CreditCard, Color(0xFF2B6CB0)) {
           currentDestination = MainDestination.FINANCE
           financeViewModel.selectTab(FinanceTab.CREDIT_CARDS)
           showHubSheet = false
         },
-        CalculatorHubItem("Lend & Borrow", "Personal debt tracker", Icons.Default.SwapHoriz, Color(0xFF059669)) {
+        CalculatorHubItem("Lend & Borrow", "Personal debt tracker", Icons.Default.SwapHoriz, Color(0xFF0E9F82)) {
           currentDestination = MainDestination.FINANCE
           financeViewModel.selectTab(FinanceTab.DEBTS)
           showHubSheet = false
         },
-        CalculatorHubItem("Split Bill", "Group expense splitting", Icons.Default.Group, Color(0xFF0D9488)) {
+        CalculatorHubItem("Split Bill", "Group expense splitting", Icons.Default.Group, Color(0xFF0E9F82)) {
           currentDestination = MainDestination.FINANCE
           financeViewModel.selectTab(FinanceTab.SPLIT_BILL)
           showHubSheet = false
@@ -345,64 +348,64 @@ fun MainScreen(
           financeViewModel.selectTab(FinanceTab.TRIPS)
           showHubSheet = false
         },
-        CalculatorHubItem("Loan & EMI", "Amortization & active loans", Icons.Default.AccountBalance, Color(0xFF4F46E5)) {
+        CalculatorHubItem("Loan & EMI", "Amortization & active loans", Icons.Default.AccountBalance, Color(0xFF3478F6)) {
           currentDestination = MainDestination.EMI
           showHubSheet = false
         },
-        CalculatorHubItem("Calculator", "Scientific & Basic", Icons.Default.Calculate, Color(0xFF7C3AED)) {
+        CalculatorHubItem("Calculator", "Scientific & Basic", Icons.Default.Calculate, Color(0xFF475C7A)) {
           currentDestination = MainDestination.CALCULATOR
           showHubSheet = false
         },
-        CalculatorHubItem("SIP & Growth", "Wealth compounding", Icons.AutoMirrored.Filled.TrendingUp, Color(0xFF10B981)) {
+        CalculatorHubItem("SIP & Growth", "Wealth compounding", Icons.AutoMirrored.Filled.TrendingUp, Color(0xFF16A879)) {
           currentDestination = MainDestination.INVESTMENTS
           investmentViewModel.selectTab(InvestmentTab.SIP)
           showHubSheet = false
         },
-        CalculatorHubItem("Lump Sum", "One-time investment", Icons.Default.Payments, Color(0xFF3B82F6)) {
+        CalculatorHubItem("Lump Sum", "One-time investment", Icons.Default.Payments, Color(0xFF3478F6)) {
           currentDestination = MainDestination.INVESTMENTS
           investmentViewModel.selectTab(InvestmentTab.LUMPSUM)
           showHubSheet = false
         },
-        CalculatorHubItem("Step-Up SIP", "Annual increment SIP", Icons.AutoMirrored.Filled.TrendingUp, Color(0xFF059669)) {
+        CalculatorHubItem("Step-Up SIP", "Annual increment SIP", Icons.AutoMirrored.Filled.TrendingUp, Color(0xFF0E9F82)) {
           currentDestination = MainDestination.INVESTMENTS
           investmentViewModel.selectTab(InvestmentTab.STEP_UP_SIP)
           showHubSheet = false
         },
-        CalculatorHubItem("Goal Planner", "Target wealth corpus", Icons.Default.TrackChanges, Color(0xFFF59E0B)) {
+        CalculatorHubItem("Goal Planner", "Target wealth corpus", Icons.Default.TrackChanges, Color(0xFFE7A33E)) {
           currentDestination = MainDestination.INVESTMENTS
           investmentViewModel.selectTab(InvestmentTab.GOAL_PLANNER)
           showHubSheet = false
         },
-        CalculatorHubItem("Interest Calc", "Simple & compound methods", Icons.Default.Percent, Color(0xFF8B5CF6)) {
+        CalculatorHubItem("Interest Calc", "Simple & compound methods", Icons.Default.Percent, Color(0xFF2B6CB0)) {
           currentDestination = MainDestination.INTEREST
           showHubSheet = false
         },
-        CalculatorHubItem("Currency", "Live exchange conversion", Icons.Default.CurrencyExchange, Color(0xFFD97706)) {
+        CalculatorHubItem("Currency", "Live exchange conversion", Icons.Default.CurrencyExchange, Color(0xFFE7A33E)) {
           currentDestination = MainDestination.UTILITIES
           utilityViewModel.selectTab(UtilityTab.CURRENCY)
           showHubSheet = false
         },
-        CalculatorHubItem("Unit Converter", "Length, weight & temp", Icons.Default.Straighten, Color(0xFF059669)) {
+        CalculatorHubItem("Unit Converter", "Length, weight & temp", Icons.Default.Straighten, Color(0xFF16A879)) {
           currentDestination = MainDestination.UTILITIES
           utilityViewModel.selectTab(UtilityTab.UNIT_CONVERTER)
           showHubSheet = false
         },
-        CalculatorHubItem("GST & Tax", "Inclusive & exclusive GST", Icons.AutoMirrored.Filled.ReceiptLong, Color(0xFF6366F1)) {
+        CalculatorHubItem("GST & Tax", "Inclusive & exclusive GST", Icons.AutoMirrored.Filled.ReceiptLong, Color(0xFF3478F6)) {
           currentDestination = MainDestination.UTILITIES
           utilityViewModel.selectTab(UtilityTab.GST_TAX)
           showHubSheet = false
         },
-        CalculatorHubItem("Income Tax", "Old vs New Regime", Icons.Default.ReceiptLong, Color(0xFF0D9488)) {
+        CalculatorHubItem("Income Tax", "Old vs New Regime", Icons.Default.ReceiptLong, Color(0xFF0E9F82)) {
           currentDestination = MainDestination.UTILITIES
           utilityViewModel.selectTab(UtilityTab.INCOME_TAX)
           showHubSheet = false
         },
-        CalculatorHubItem("In-Hand Salary", "CTC to Take-Home pay slip", Icons.Default.AccountBalanceWallet, Color(0xFF2563EB)) {
+        CalculatorHubItem("In-Hand Salary", "CTC to Take-Home pay slip", Icons.Default.AccountBalanceWallet, Color(0xFF3478F6)) {
           currentDestination = MainDestination.UTILITIES
           utilityViewModel.selectTab(UtilityTab.SALARY)
           showHubSheet = false
         },
-        CalculatorHubItem("Age Calculator", "Exact age & birthday", Icons.Default.Cake, Color(0xFFF43F5E)) {
+        CalculatorHubItem("Age Calculator", "Exact age & birthday", Icons.Default.Cake, Color(0xFFE56B70)) {
           currentDestination = MainDestination.AGE_CALENDAR
           ageCalendarViewModel.selectTab(AgeCalendarTab.AGE)
           showHubSheet = false
@@ -518,18 +521,12 @@ fun MainScreen(
                 val financeUiState by financeViewModel.uiState.collectAsState()
                 DropdownMenu(
                   expanded = menuExpanded,
-                  onDismissRequest = { menuExpanded = false }
+                  onDismissRequest = { menuExpanded = false },
+                  containerColor = MaterialTheme.colorScheme.surface,
+                  shape = RoundedCornerShape(16.dp)
                 ) {
                   DropdownMenuItem(
-                    leadingIcon = {
-                      Icon(
-                        Icons.Default.Palette,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                      )
-                    },
-                    text = { Text("Appearance & Themes", fontWeight = FontWeight.Medium) },
+                    text = { Text("Appearance & Themes") },
                     onClick = {
                       menuExpanded = false
                       showThemeSheet = true
@@ -601,46 +598,65 @@ fun MainScreen(
             }
           },
           colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
           )
+        )
+        HorizontalDivider(
+          thickness = 1.dp,
+          color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
         )
       },
       bottomBar = {
         if (!useNavigationRail) {
-          NavigationBar(
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 0.dp,
-            modifier = Modifier.testTag("bottom_nav_bar")
-          ) {
-            bottomTabs.forEach { destination ->
-              NavigationBarItem(
-                selected = currentDestination == destination,
-                onClick = {
-                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                  currentDestination = destination
-                  if (destination == MainDestination.FINANCE) {
-                    financeViewModel.selectTab(FinanceTab.EXPENSES)
-                  }
-                },
-                icon = {
-                  Icon(
-                    destination.icon,
-                    contentDescription = stringResource(destination.labelRes),
-                    modifier = Modifier.size(22.dp)
-                  )
-                },
-                label = {
-                  Text(
-                    text = stringResource(destination.labelRes),
-                    fontSize = 11.sp,
-                    fontWeight = if (currentDestination == destination) FontWeight.Bold else FontWeight.Medium,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis
-                  )
-                },
-                modifier = Modifier.testTag("nav_tab_${destination.name.lowercase()}")
-              )
+          Column {
+            HorizontalDivider(
+              thickness = 1.dp,
+              color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
+            )
+            NavigationBar(
+              containerColor = MaterialTheme.colorScheme.surface,
+              tonalElevation = 0.dp,
+              modifier = Modifier.testTag("bottom_nav_bar")
+            ) {
+              bottomTabs.forEach { destination ->
+                val isSelected = currentDestination == destination
+                NavigationBarItem(
+                  selected = isSelected,
+                  onClick = {
+                    haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    currentDestination = destination
+                    if (destination == MainDestination.FINANCE) {
+                      financeViewModel.selectTab(FinanceTab.EXPENSES)
+                    }
+                  },
+                  icon = {
+                    Icon(
+                      destination.icon,
+                      contentDescription = stringResource(destination.labelRes),
+                      modifier = Modifier.size(21.dp)
+                    )
+                  },
+                  label = {
+                    Text(
+                      text = stringResource(destination.labelRes),
+                      fontSize = 11.sp,
+                      fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                      maxLines = 1,
+                      softWrap = false,
+                      overflow = TextOverflow.Ellipsis
+                    )
+                  },
+                  colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                  ),
+                  modifier = Modifier.testTag("nav_tab_${destination.name.lowercase()}")
+                )
+              }
             }
           }
         }
@@ -681,6 +697,13 @@ fun MainScreen(
                     overflow = TextOverflow.Ellipsis
                   )
                 },
+                colors = NavigationRailItemDefaults.colors(
+                  selectedIconColor = MaterialTheme.colorScheme.primary,
+                  selectedTextColor = MaterialTheme.colorScheme.primary,
+                  indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                  unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                  unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
                 modifier = Modifier.testTag("nav_rail_${destination.name.lowercase()}")
               )
             }
@@ -959,6 +982,7 @@ private fun ThemeSettingsBottomSheet(
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surface,
     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
   ) {
     Column(

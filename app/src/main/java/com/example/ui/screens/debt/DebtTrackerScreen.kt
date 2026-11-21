@@ -34,6 +34,7 @@ import com.example.data.local.entity.AccountWithBalance
 import com.example.data.local.entity.BankAccount
 import com.example.data.local.entity.DebtRecord
 import com.example.ui.components.CurrencyFormatter
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -80,7 +81,8 @@ fun DebtTrackerScreen(
         onClick = { viewModel.setShowAddDebtDialog(true) },
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = CircleShape,
+        shape = RoundedCornerShape(16.dp),
+        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
         modifier = Modifier.testTag("btn_add_debt_record")
       ) {
         Icon(Icons.Default.Add, contentDescription = "Add Lend/Borrow Transaction")
@@ -116,10 +118,12 @@ fun DebtTrackerScreen(
       if (state.selectedTab == DebtTab.LENT) {
         item(key = "debt_upi_banner", contentType = "debt_upi_banner") {
           Card(
-            shape = RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-              containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+              containerColor = MaterialTheme.colorScheme.surface
             ),
+            border = BorderStroke(1.dp, OmniFinCalcThemeTokens.colors.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             modifier = Modifier
               .fillMaxWidth()
               .clickable { showUpiDialog = true }
@@ -127,7 +131,7 @@ fun DebtTrackerScreen(
             Row(
               modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 14.dp, vertical = 11.dp),
               horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically
             ) {
@@ -135,12 +139,20 @@ fun DebtTrackerScreen(
                 modifier = Modifier.weight(1f).padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
               ) {
-                Icon(
-                  Icons.Default.QrCode,
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.primary,
-                  modifier = Modifier.size(22.dp)
-                )
+                Box(
+                  modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                  contentAlignment = Alignment.Center
+                ) {
+                  Icon(
+                    Icons.Default.QrCode,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                  )
+                }
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                   Text(
@@ -148,15 +160,21 @@ fun DebtTrackerScreen(
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                   )
                   Text(
-                    if (userUpiId.isNotBlank()) "Your UPI: $userUpiId (Included in WhatsApp reminders)"
-                    else "Tap to add your UPI ID (GPay/PhonePe/Paytm)",
+                    if (userUpiId.isNotBlank()) "Your UPI: $userUpiId (Included in reminders)"
+                    else "Tap to add your UPI ID (GPay / PhonePe / Paytm)",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                   )
                 }
               }
               FilledTonalIconButton(
                 onClick = { showUpiDialog = true },
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                  containerColor = MaterialTheme.colorScheme.primaryContainer,
+                  contentColor = MaterialTheme.colorScheme.primary
+                ),
                 modifier = Modifier.size(36.dp)
               ) {
                 Icon(Icons.Default.Edit, contentDescription = "Edit UPI ID", modifier = Modifier.size(16.dp))
@@ -183,6 +201,12 @@ fun DebtTrackerScreen(
             }
           },
           shape = RoundedCornerShape(14.dp),
+          colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+          ),
           modifier = Modifier.fillMaxWidth(),
           singleLine = true
         )
@@ -430,12 +454,13 @@ private fun DebtSummaryOverviewCard(
   totalBorrowed: Double,
   netBalance: Double
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Card(
-    shape = RoundedCornerShape(22.dp),
+    shape = RoundedCornerShape(18.dp),
     colors = CardDefaults.cardColors(
       containerColor = MaterialTheme.colorScheme.surface
     ),
-    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+    border = BorderStroke(1.dp, semantic.cardBorder),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     modifier = Modifier.fillMaxWidth()
   ) {
@@ -459,15 +484,17 @@ private fun DebtSummaryOverviewCard(
         )
         // Net balance tag
         Surface(
-          shape = RoundedCornerShape(8.dp),
-          color = if (netBalance >= 0) Color(0xFF10B981).copy(alpha = 0.15f) else Color(0xFFEF4444).copy(alpha = 0.15f)
+          shape = RoundedCornerShape(999.dp),
+          color = if (netBalance >= 0) semantic.incomeContainer else semantic.expenseContainer
         ) {
           Text(
             text = "Net: ${if (netBalance >= 0) "+" else ""}${CurrencyFormatter.format(netBalance)}",
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (netBalance >= 0) Color(0xFF059669) else Color(0xFFDC2626),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.Bold,
+              fontFeatureSettings = "tnum"
+            ),
+            color = if (netBalance >= 0) semantic.income else semantic.expense,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )
@@ -475,15 +502,19 @@ private fun DebtSummaryOverviewCard(
       }
 
       Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
       ) {
         // People Who Owe Me (LENT - GREEN)
         Surface(
-          shape = RoundedCornerShape(16.dp),
-          color = Color(0xFF10B981).copy(alpha = 0.12f),
-          border = BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.3f)),
-          modifier = Modifier.weight(1f)
+          shape = RoundedCornerShape(14.dp),
+          color = semantic.incomeContainer,
+          border = BorderStroke(1.dp, semantic.income.copy(alpha = 0.24f)),
+          modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
         ) {
           Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -493,23 +524,23 @@ private fun DebtSummaryOverviewCard(
               Box(
                 modifier = Modifier
                   .size(22.dp)
-                  .clip(CircleShape)
-                  .background(Color(0xFF059669).copy(alpha = 0.2f)),
+                  .clip(RoundedCornerShape(7.dp))
+                  .background(semantic.income.copy(alpha = 0.16f)),
                 contentAlignment = Alignment.Center
               ) {
                 Icon(
                   Icons.Default.ArrowDownward,
                   contentDescription = null,
-                  tint = Color(0xFF059669),
+                  tint = semantic.income,
                   modifier = Modifier.size(13.dp)
                 )
               }
-              Spacer(modifier = Modifier.width(5.dp))
+              Spacer(modifier = Modifier.width(6.dp))
               Text(
                 text = "People Owe Me",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF059669),
+                color = semantic.income,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -518,15 +549,17 @@ private fun DebtSummaryOverviewCard(
             Spacer(modifier = Modifier.height(6.dp))
             Text(
               text = CurrencyFormatter.format(totalLent),
-              fontSize = 16.sp,
-              fontWeight = FontWeight.Black,
-              color = Color(0xFF059669),
+              style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontFeatureSettings = "tnum"
+              ),
+              color = semantic.income,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis
             )
             Text(
               text = "Total Receivable",
-              fontSize = 9.5.sp,
+              fontSize = 10.sp,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis
@@ -534,12 +567,14 @@ private fun DebtSummaryOverviewCard(
           }
         }
 
-        // People I Owe (BORROWED - RED)
+        // People I Owe (BORROWED - CORAL)
         Surface(
-          shape = RoundedCornerShape(16.dp),
-          color = Color(0xFFEF4444).copy(alpha = 0.12f),
-          border = BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.3f)),
-          modifier = Modifier.weight(1f)
+          shape = RoundedCornerShape(14.dp),
+          color = semantic.expenseContainer,
+          border = BorderStroke(1.dp, semantic.expense.copy(alpha = 0.24f)),
+          modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
         ) {
           Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -549,23 +584,23 @@ private fun DebtSummaryOverviewCard(
               Box(
                 modifier = Modifier
                   .size(22.dp)
-                  .clip(CircleShape)
-                  .background(Color(0xFFDC2626).copy(alpha = 0.2f)),
+                  .clip(RoundedCornerShape(7.dp))
+                  .background(semantic.expense.copy(alpha = 0.16f)),
                 contentAlignment = Alignment.Center
               ) {
                 Icon(
                   Icons.Default.ArrowUpward,
                   contentDescription = null,
-                  tint = Color(0xFFDC2626),
+                  tint = semantic.expense,
                   modifier = Modifier.size(13.dp)
                 )
               }
-              Spacer(modifier = Modifier.width(5.dp))
+              Spacer(modifier = Modifier.width(6.dp))
               Text(
                 text = "People I Owe",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFDC2626),
+                color = semantic.expense,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -574,15 +609,17 @@ private fun DebtSummaryOverviewCard(
             Spacer(modifier = Modifier.height(6.dp))
             Text(
               text = CurrencyFormatter.format(totalBorrowed),
-              fontSize = 16.sp,
-              fontWeight = FontWeight.Black,
-              color = Color(0xFFDC2626),
+              style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontFeatureSettings = "tnum"
+              ),
+              color = semantic.expense,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis
             )
             Text(
               text = "Total Payable",
-              fontSize = 9.5.sp,
+              fontSize = 10.sp,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis
@@ -597,34 +634,50 @@ private fun DebtSummaryOverviewCard(
 // -------------------------------------------------------------
 // SEGMENTED TAB SELECTOR
 // -------------------------------------------------------------
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SingleChoiceSegmentedTabs(
   selectedTab: DebtTab,
   onSelectTab: (DebtTab) -> Unit
 ) {
-  PrimaryTabRow(
-    selectedTabIndex = selectedTab.ordinal,
-    containerColor = Color.Transparent,
+  Surface(
+    shape = RoundedCornerShape(14.dp),
+    color = MaterialTheme.colorScheme.surfaceVariant,
+    border = BorderStroke(1.dp, OmniFinCalcThemeTokens.colors.cardBorder),
     modifier = Modifier.fillMaxWidth()
   ) {
-    DebtTab.values().forEach { tab ->
-      Tab(
-        selected = selectedTab == tab,
-        onClick = { onSelectTab(tab) },
-        text = {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(4.dp),
+      horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+      DebtTab.values().forEach { tab ->
+        val isSelected = selectedTab == tab
+        Surface(
+          onClick = { onSelectTab(tab) },
+          shape = RoundedCornerShape(10.dp),
+          color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+          modifier = Modifier.weight(1f)
+        ) {
           Text(
             text = when (tab) {
               DebtTab.LENT -> "Who Owes Me"
               DebtTab.BORROWED -> "Who I Owe"
               DebtTab.SETTLED -> "Settled"
             },
-            fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
-            fontSize = 13.sp,
-            maxLines = 1
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+            fontSize = 12.5.sp,
+            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(vertical = 9.dp, horizontal = 4.dp)
           )
         }
-      )
+      }
     }
   }
 }

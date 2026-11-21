@@ -1,9 +1,10 @@
 package com.example.ui.screens.history
 import com.example.ui.theme.performConfiguredHapticFeedback
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,7 +20,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.local.entity.CalculationRecord
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -27,6 +28,13 @@ import java.util.Locale
 
 private val FAVORITES_DATE_FORMATTER: DateTimeFormatter =
   DateTimeFormatter.ofPattern("dd MMM, hh:mm a", Locale.getDefault())
+
+private val QUICK_LAUNCH_TOOLS = listOf(
+  "EMI" to "Loan EMI",
+  "INVEST" to "SIP & Growth",
+  "EXPENSE" to "Expenses",
+  "CALC" to "Scientific"
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +46,11 @@ fun FavoritesBottomSheet(
   val favoritesList by viewModel.favoritesList.collectAsState()
   val context = LocalContext.current
   val haptic = LocalHapticFeedback.current
+  val semantic = OmniFinCalcThemeTokens.colors
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surface,
     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     modifier = Modifier.testTag("favorites_bottom_sheet")
   ) {
@@ -60,7 +70,7 @@ fun FavoritesBottomSheet(
             Icons.Default.Star,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(22.dp)
           )
           Spacer(modifier = Modifier.width(8.dp))
           Text(
@@ -70,7 +80,7 @@ fun FavoritesBottomSheet(
         }
         Text(
           text = "${favoritesList.size} starred",
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
       }
@@ -80,33 +90,42 @@ fun FavoritesBottomSheet(
       // Quick Access Favorite Shortcuts
       Text(
         text = "Quick Launch Tools",
-        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
         color = MaterialTheme.colorScheme.primary
       )
       Spacer(modifier = Modifier.height(8.dp))
-      Row(
+      LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
-        listOf(
-          "EMI" to "Loan EMI",
-          "INVEST" to "SIP & Growth",
-          "EXPENSE" to "Expenses",
-          "CALC" to "Scientific"
-        ).forEach { (key, label) ->
+        items(QUICK_LAUNCH_TOOLS, key = { it.first }) { (key, label) ->
           AssistChip(
             onClick = {
               haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
               onOpenTool(key)
               onDismiss()
             },
-            label = { Text(label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-            leadingIcon = {
-              Icon(Icons.Default.FlashOn, contentDescription = null, modifier = Modifier.size(14.dp))
+            label = {
+              Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold
+              )
             },
+            leadingIcon = {
+              Icon(
+                Icons.Default.FlashOn,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(15.dp)
+              )
+            },
+            shape = RoundedCornerShape(12.dp),
             colors = AssistChipDefaults.assistChipColors(
-              containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
-            )
+              containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+              labelColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
           )
         }
       }
@@ -115,7 +134,7 @@ fun FavoritesBottomSheet(
 
       Text(
         text = "Starred Calculations",
-        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
         color = MaterialTheme.colorScheme.onSurface
       )
       Spacer(modifier = Modifier.height(8.dp))
@@ -131,19 +150,21 @@ fun FavoritesBottomSheet(
             Icon(
               Icons.Default.StarBorder,
               contentDescription = null,
-              tint = MaterialTheme.colorScheme.outline,
-              modifier = Modifier.size(48.dp)
+              tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+              modifier = Modifier.size(44.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
               text = "No starred calculations yet",
-              style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.SemiBold,
+              color = MaterialTheme.colorScheme.onSurface
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-              text = "Tap the star icon in History or bookmark in calculators to pin here!",
+              text = "Tap the star icon in History or bookmark in calculators to pin here.",
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.outline
+              color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           }
         }
@@ -157,10 +178,11 @@ fun FavoritesBottomSheet(
               Instant.ofEpochMilli(item.timestamp).atZone(ZoneId.systemDefault()).format(FAVORITES_DATE_FORMATTER)
             }
             Card(
-              shape = RoundedCornerShape(14.dp),
+              shape = RoundedCornerShape(16.dp),
               colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
               ),
+              border = BorderStroke(1.dp, semantic.cardBorder),
               elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
               modifier = Modifier.fillMaxWidth()
             ) {
@@ -170,33 +192,35 @@ fun FavoritesBottomSheet(
                   horizontalArrangement = Arrangement.SpaceBetween,
                   verticalAlignment = Alignment.CenterVertically
                 ) {
-                  SuggestionChip(
-                    onClick = {},
-                    label = { Text(item.category, fontSize = 10.sp, fontWeight = FontWeight.Bold) },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                      containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    border = null,
-                    modifier = Modifier.height(24.dp)
-                  )
+                  Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f)
+                  ) {
+                    Text(
+                      text = item.category,
+                      style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                      color = MaterialTheme.colorScheme.onPrimaryContainer,
+                      modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                  }
                   Text(
                     text = formattedDate,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                   )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                   text = item.title,
-                  style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                  style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                   color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                   text = item.summary,
-                  style = MaterialTheme.typography.bodySmall,
+                  style = MaterialTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                   modifier = Modifier.padding(vertical = 4.dp)
                 )
@@ -211,7 +235,7 @@ fun FavoritesBottomSheet(
                       haptic.performConfiguredHapticFeedback(HapticFeedbackType.LongPress)
                       viewModel.toggleFavorite(item)
                     },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(36.dp)
                   ) {
                     Icon(
                       Icons.Default.Star,
@@ -222,18 +246,23 @@ fun FavoritesBottomSheet(
                   }
                   IconButton(
                     onClick = { viewModel.shareRecord(context, item) },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(36.dp)
                   ) {
-                    Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(18.dp))
+                    Icon(
+                      Icons.Default.Share,
+                      contentDescription = "Share",
+                      tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                      modifier = Modifier.size(18.dp)
+                    )
                   }
                   IconButton(
                     onClick = { viewModel.delete(item) },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(36.dp)
                   ) {
                     Icon(
                       Icons.Default.DeleteOutline,
                       contentDescription = "Delete",
-                      tint = MaterialTheme.colorScheme.error,
+                      tint = semantic.expense,
                       modifier = Modifier.size(18.dp)
                     )
                   }
