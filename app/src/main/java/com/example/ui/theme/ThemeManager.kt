@@ -14,17 +14,54 @@ enum class AppThemeMode(val title: String) {
   AMOLED("Pure Black (AMOLED)")
 }
 
+/**
+ * Curated full-palette fintech themes controlling canvas, elevated cards,
+ * hero balance card metallic sheen, and primary/accent hierarchy across Light & Dark modes.
+ */
 enum class AccentTheme(
   val title: String,
+  val subtitle: String,
   val primaryLight: Color,
-  val primaryDark: Color
+  val primaryDark: Color,
+  val previewCanvasLight: Color,
+  val previewCanvasDark: Color,
+  val previewHeroStart: Color,
+  val previewHeroEnd: Color,
+  val previewGoldAccent: Color
 ) {
-  INDIGO("Electric Blue", Color(0xFF3478F6), Color(0xFF5B96FF)),
-  EMERALD("Wealth Green", Color(0xFF16A879), Color(0xFF35C99A)),
-  PURPLE("Royal Violet", Color(0xFF6B5CE7), Color(0xFF9F94FF)),
-  AMBER("Gold Amber", Color(0xFFE7A33E), Color(0xFFF0B44C)),
-  ROSE("Coral Rose", Color(0xFFE56B70), Color(0xFFF17B83)),
-  CYAN("Fintech Teal", Color(0xFF0E9F82), Color(0xFF35C99A))
+  EMERALD(
+    title = "Private Wealth",
+    subtitle = "Warm Alabaster & Forest Emerald",
+    primaryLight = Color(0xFF0E6B50),
+    primaryDark = Color(0xFF34C795),
+    previewCanvasLight = Color(0xFFECE8E0),
+    previewCanvasDark = Color(0xFF091310),
+    previewHeroStart = Color(0xFF0A2921),
+    previewHeroEnd = Color(0xFF174B3D),
+    previewGoldAccent = Color(0xFFD4A74A)
+  ),
+  INDIGO(
+    title = "Neobank Frost",
+    subtitle = "Cool Mist Slate & Royal Cobalt",
+    primaryLight = Color(0xFF2563EB),
+    primaryDark = Color(0xFF5B96FF),
+    previewCanvasLight = Color(0xFFE6ECF5),
+    previewCanvasDark = Color(0xFF0A1120),
+    previewHeroStart = Color(0xFF0E1C36),
+    previewHeroEnd = Color(0xFF1D3E7A),
+    previewGoldAccent = Color(0xFF60A5FA)
+  ),
+  GRAPHITE(
+    title = "Executive Graphite",
+    subtitle = "Soft Pearl & Matte Obsidian",
+    primaryLight = Color(0xFF1B1F27),
+    primaryDark = Color(0xFFE2B459),
+    previewCanvasLight = Color(0xFFE7E9EE),
+    previewCanvasDark = Color(0xFF0B0C0F),
+    previewHeroStart = Color(0xFF14161C),
+    previewHeroEnd = Color(0xFF272C36),
+    previewGoldAccent = Color(0xFFDFB459)
+  )
 }
 
 enum class HapticStrength(val title: String) {
@@ -35,7 +72,7 @@ enum class HapticStrength(val title: String) {
 
 data class AppThemeState(
   val themeMode: AppThemeMode = AppThemeMode.SYSTEM,
-  val accentTheme: AccentTheme = AccentTheme.INDIGO,
+  val accentTheme: AccentTheme = AccentTheme.EMERALD,
   val hapticStrength: HapticStrength = HapticStrength.CRISP
 )
 
@@ -55,15 +92,24 @@ object ThemeManager {
     preferences = savedPreferences
     _state.value = AppThemeState(
       themeMode = savedPreferences.getString(KEY_THEME_MODE, null)
-        ?.let { value -> AppThemeMode.values().firstOrNull { it.name == value } }
+        ?.let { value -> AppThemeMode.entries.firstOrNull { it.name == value } }
         ?: AppThemeMode.SYSTEM,
       accentTheme = savedPreferences.getString(KEY_ACCENT_THEME, null)
-        ?.let { value -> AccentTheme.values().firstOrNull { it.name == value } }
-        ?: AccentTheme.INDIGO,
+        ?.let { value -> mapSavedAccentTheme(value) }
+        ?: AccentTheme.EMERALD,
       hapticStrength = savedPreferences.getString(KEY_HAPTIC_STRENGTH, null)
-        ?.let { value -> HapticStrength.values().firstOrNull { it.name == value } }
+        ?.let { value -> HapticStrength.entries.firstOrNull { it.name == value } }
         ?: HapticStrength.CRISP
     )
+  }
+
+  private fun mapSavedAccentTheme(saved: String): AccentTheme {
+    return when (saved) {
+      "EMERALD", "CYAN" -> AccentTheme.EMERALD
+      "INDIGO", "PURPLE" -> AccentTheme.INDIGO
+      "GRAPHITE", "AMBER", "ROSE" -> AccentTheme.GRAPHITE
+      else -> AccentTheme.entries.firstOrNull { it.name == saved } ?: AccentTheme.EMERALD
+    }
   }
 
   fun setThemeMode(mode: AppThemeMode) {

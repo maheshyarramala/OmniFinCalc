@@ -110,6 +110,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -163,6 +164,7 @@ import com.example.ui.screens.utility.UtilityViewModel
 import com.example.ui.theme.AccentTheme
 import com.example.ui.theme.AppThemeMode
 import com.example.ui.theme.HapticStrength
+import com.example.ui.theme.OmniFinCalcThemeTokens
 import com.example.ui.theme.ThemeManager
 import com.example.ui.theme.performConfiguredHapticFeedback
 
@@ -598,27 +600,27 @@ fun MainScreen(
             }
           },
           colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = MaterialTheme.colorScheme.background,
+            actionIconContentColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.78f)
           )
-        )
-        HorizontalDivider(
-          thickness = 1.dp,
-          color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
         )
       },
       bottomBar = {
         if (!useNavigationRail) {
-          Column {
-            HorizontalDivider(
-              thickness = 1.dp,
-              color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
-            )
-            NavigationBar(
-              containerColor = MaterialTheme.colorScheme.surface,
-              tonalElevation = 0.dp,
-              modifier = Modifier.testTag("bottom_nav_bar")
-            ) {
+          Surface(
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = if (OmniFinCalcThemeTokens.colors.isDark) 0.dp else 8.dp
+          ) {
+            Column {
+              HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+              )
+              NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
+                modifier = Modifier.testTag("bottom_nav_bar")
+              ) {
               bottomTabs.forEach { destination ->
                 val isSelected = currentDestination == destination
                 NavigationBarItem(
@@ -658,6 +660,7 @@ fun MainScreen(
                 )
               }
             }
+          }
           }
         }
       },
@@ -1096,73 +1099,131 @@ private fun ThemeSettingsBottomSheet(
         }
       }
 
-      // Accent Palette — Clean 3-column grid (all 6 palettes centered & evenly aligned)
+      // Signature Fintech Themes — 3 Full-Palette Visual Showcase Cards
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-          text = stringResource(R.string.theme_accent_label),
+          text = "Signature Theme",
           fontWeight = FontWeight.Bold,
           style = MaterialTheme.typography.titleMedium,
           modifier = Modifier.fillMaxWidth()
         )
-        val accentRows = remember { AccentTheme.entries.chunked(3) }
+        val isDarkPreview = OmniFinCalcThemeTokens.colors.isDark
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-          accentRows.forEach { rowAccents ->
-            Row(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.spacedBy(10.dp)
+          AccentTheme.entries.forEach { accent ->
+            val isSelected = themeState.accentTheme == accent
+            val activeAccentColor = if (isDarkPreview) accent.primaryDark else accent.primaryLight
+            val miniCanvas = if (isDarkPreview) accent.previewCanvasDark else accent.previewCanvasLight
+            val miniCard = if (isDarkPreview) Color(0xFF1A222E) else Color.White
+            Surface(
+              onClick = {
+                haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                ThemeManager.setAccentTheme(accent)
+              },
+              shape = RoundedCornerShape(16.dp),
+              color = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (isDarkPreview) 0.45f else 0.55f)
+              } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
+              },
+              border = BorderStroke(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) activeAccentColor else MaterialTheme.colorScheme.outlineVariant
+              ),
+              modifier = Modifier
+                .fillMaxWidth()
+                .testTag("accent_theme_${accent.name.lowercase()}")
             ) {
-              rowAccents.forEach { accent ->
-                val isSelected = themeState.accentTheme == accent
-                Surface(
-                  onClick = {
-                    haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    ThemeManager.setAccentTheme(accent)
-                  },
-                  shape = RoundedCornerShape(14.dp),
-                  color = if (isSelected) {
-                    accent.primaryLight.copy(alpha = 0.14f)
-                  } else {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
-                  },
-                  border = BorderStroke(
-                    width = if (isSelected) 2.dp else 1.dp,
-                    color = if (isSelected) accent.primaryLight else MaterialTheme.colorScheme.outlineVariant
-                  ),
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(horizontal = 12.dp, vertical = 11.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+              ) {
+                // Miniature Live Theme Swatch (Canvas + Hero Card + Mini White Tile)
+                Box(
                   modifier = Modifier
-                    .weight(1f)
-                    .testTag("accent_theme_${accent.name.lowercase()}")
+                    .size(width = 64.dp, height = 46.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(miniCanvas)
+                    .padding(5.dp)
                 ) {
                   Column(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                      .padding(horizontal = 8.dp, vertical = 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.fillMaxSize()
                   ) {
                     Box(
                       modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(accent.primaryLight),
-                      contentAlignment = Alignment.Center
-                    ) {
-                      if (isSelected) {
-                        Icon(
-                          imageVector = Icons.Default.Check,
-                          contentDescription = null,
-                          tint = Color.White,
-                          modifier = Modifier.size(16.dp)
+                        .fillMaxWidth()
+                        .height(19.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(
+                          Brush.horizontalGradient(
+                            colors = listOf(accent.previewHeroStart, accent.previewHeroEnd)
+                          )
                         )
-                      }
+                        .padding(horizontal = 4.dp),
+                      contentAlignment = Alignment.CenterEnd
+                    ) {
+                      Box(
+                        modifier = Modifier
+                          .size(width = 12.dp, height = 5.dp)
+                          .clip(RoundedCornerShape(999.dp))
+                          .background(accent.previewGoldAccent)
+                      )
                     }
-                    Text(
-                      text = accent.title.replace(" ", "\n"),
-                      fontSize = 11.5.sp,
-                      fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                      color = MaterialTheme.colorScheme.onSurface,
-                      lineHeight = 14.sp,
-                      textAlign = TextAlign.Center,
-                      maxLines = 2
+                    Row(
+                      modifier = Modifier.fillMaxWidth(),
+                      horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                      Box(
+                        modifier = Modifier
+                          .weight(1f)
+                          .height(12.dp)
+                          .clip(RoundedCornerShape(4.dp))
+                          .background(miniCard)
+                      )
+                      Box(
+                        modifier = Modifier
+                          .weight(1f)
+                          .height(12.dp)
+                          .clip(RoundedCornerShape(4.dp))
+                          .background(miniCard)
+                      )
+                    }
+                  }
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                  Text(
+                    text = accent.title,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                  Text(
+                    text = accent.subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                }
+
+                Box(
+                  modifier = Modifier
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) activeAccentColor else activeAccentColor.copy(alpha = 0.22f)),
+                  contentAlignment = Alignment.Center
+                ) {
+                  if (isSelected) {
+                    Icon(
+                      imageVector = Icons.Default.Check,
+                      contentDescription = null,
+                      tint = MaterialTheme.colorScheme.onPrimary,
+                      modifier = Modifier.size(15.dp)
                     )
                   }
                 }

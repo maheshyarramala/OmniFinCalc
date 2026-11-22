@@ -53,6 +53,7 @@ fun FintechCard(
   contentPadding: PaddingValues = PaddingValues(16.dp),
   content: @Composable ColumnScope.() -> Unit
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   val cardModifier = if (onClick != null) {
     modifier.clip(RoundedCornerShape(cornerRadius)).clickable(onClick = onClick)
   } else {
@@ -62,7 +63,9 @@ fun FintechCard(
     shape = RoundedCornerShape(cornerRadius),
     colors = CardDefaults.cardColors(containerColor = containerColor),
     border = BorderStroke(1.dp, borderColor),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    elevation = CardDefaults.cardElevation(
+      defaultElevation = if (semantic.isDark) 0.dp else 1.5.dp
+    ),
     modifier = cardModifier
   ) {
     Column(
@@ -113,7 +116,7 @@ fun FintechSectionHeader(
       ) {
         Text(
           text = actionLabel,
-          style = MaterialTheme.typography.labelLarge,
+          style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
           color = MaterialTheme.colorScheme.primary
         )
       }
@@ -131,57 +134,85 @@ fun FintechMetricTile(
   onClick: (() -> Unit)? = null,
   modifier: Modifier = Modifier
 ) {
-  FintechCard(
-    onClick = onClick,
-    contentPadding = PaddingValues(14.dp),
-    modifier = modifier
+  val semantic = OmniFinCalcThemeTokens.colors
+  val tileBorder = if (semantic.isDark) {
+    accentColor.copy(alpha = 0.22f)
+  } else {
+    accentColor.copy(alpha = 0.20f)
+  }
+  val cardModifier = if (onClick != null) {
+    modifier.clip(RoundedCornerShape(18.dp)).clickable(onClick = onClick)
+  } else {
+    modifier
+  }
+  Card(
+    shape = RoundedCornerShape(18.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    border = BorderStroke(1.dp, tileBorder),
+    elevation = CardDefaults.cardElevation(
+      defaultElevation = if (semantic.isDark) 0.dp else 1.5.dp
+    ),
+    modifier = cardModifier
   ) {
-    Row(
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Box(
+      modifier = Modifier
+        .fillMaxWidth()
+        .background(accentColor.copy(alpha = if (semantic.isDark) 0.06f else 0.045f))
+        .padding(14.dp)
     ) {
-      Box(
-        modifier = Modifier
-          .size(30.dp)
-          .clip(RoundedCornerShape(9.dp))
-          .background(accentColor.copy(alpha = 0.12f)),
-        contentAlignment = Alignment.Center
-      ) {
-        Icon(
-          imageVector = icon,
-          contentDescription = null,
-          tint = accentColor,
-          modifier = Modifier.size(16.dp)
+      Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+          Box(
+            modifier = Modifier
+              .size(32.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(accentColor.copy(alpha = if (semantic.isDark) 0.18f else 0.14f)),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(
+              imageVector = icon,
+              contentDescription = null,
+              tint = accentColor,
+              modifier = Modifier.size(17.dp)
+            )
+          }
+          Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+          )
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+          text = value,
+          style = MaterialTheme.typography.headlineSmall.copy(
+            fontWeight = FontWeight.ExtraBold,
+            fontFeatureSettings = "tnum",
+            letterSpacing = (-0.4).sp
+          ),
+          color = MaterialTheme.colorScheme.onSurface,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
+        if (!subtitle.isNullOrBlank()) {
+          Spacer(modifier = Modifier.height(4.dp))
+          Text(
+            text = subtitle,
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.Medium,
+              fontFeatureSettings = "tnum"
+            ),
+            color = accentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+          )
+        }
       }
-      Text(
-        text = label,
-        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-      )
-    }
-    Spacer(modifier = Modifier.height(10.dp))
-    Text(
-      text = value,
-      style = MaterialTheme.typography.titleLarge.copy(
-        fontWeight = FontWeight.Bold,
-        fontFeatureSettings = "tnum"
-      ),
-      color = MaterialTheme.colorScheme.onSurface,
-      maxLines = 1,
-      overflow = TextOverflow.Ellipsis
-    )
-    if (!subtitle.isNullOrBlank()) {
-      Spacer(modifier = Modifier.height(3.dp))
-      Text(
-        text = subtitle,
-        style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
-        color = accentColor,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-      )
     }
   }
 }
@@ -221,6 +252,7 @@ fun FintechQuickActionButton(
   testTag: String,
   modifier: Modifier = Modifier
 ) {
+  val semantic = OmniFinCalcThemeTokens.colors
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = modifier
@@ -231,17 +263,17 @@ fun FintechQuickActionButton(
       .testTag(testTag)
   ) {
     Surface(
-      shape = RoundedCornerShape(14.dp),
-      color = accentColor.copy(alpha = 0.11f),
-      border = BorderStroke(1.dp, accentColor.copy(alpha = 0.18f)),
-      modifier = Modifier.size(46.dp)
+      shape = RoundedCornerShape(15.dp),
+      color = accentColor.copy(alpha = if (semantic.isDark) 0.16f else 0.13f),
+      border = BorderStroke(1.dp, accentColor.copy(alpha = if (semantic.isDark) 0.24f else 0.22f)),
+      modifier = Modifier.size(48.dp)
     ) {
       Box(contentAlignment = Alignment.Center) {
         Icon(
           imageVector = icon,
           contentDescription = label,
           tint = accentColor,
-          modifier = Modifier.size(20.dp)
+          modifier = Modifier.size(21.dp)
         )
       }
     }
@@ -249,7 +281,7 @@ fun FintechQuickActionButton(
     Text(
       text = label,
       style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-      color = MaterialTheme.colorScheme.onBackground,
+      color = MaterialTheme.colorScheme.onSurface,
       maxLines = 1,
       overflow = TextOverflow.Ellipsis,
       textAlign = TextAlign.Center

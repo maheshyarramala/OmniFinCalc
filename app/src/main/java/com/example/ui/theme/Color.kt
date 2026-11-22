@@ -2,73 +2,105 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// OmniFinCalc Core Fintech Brand Palette
-val NavyPrimary = Color(0xFF17233B)
-val NavyElevated = Color(0xFF1E2F4F)
-val ElectricBlue = Color(0xFF3478F6)
+// OmniFinCalc Core Fintech Brand Tokens
+val NavyPrimary = Color(0xFF101D36)
+val NavyElevated = Color(0xFF1B2E52)
+val ElectricBlue = Color(0xFF2563EB)
 val ElectricBlueDark = Color(0xFF5B96FF)
 
-// Light Theme Palette
-val FintechPrimaryLight = ElectricBlue
-val FintechOnPrimaryLight = Color(0xFFFFFFFF)
-val FintechPrimaryContainerLight = Color(0xFFEAF1FF)
-val FintechOnPrimaryContainerLight = NavyPrimary
+// Theme 1: Private Wealth — Warm Alabaster & Forest Emerald + Champagne Gold
+val WealthBgLight = Color(0xFFECE8E0)
+val WealthSurfaceLight = Color(0xFFFDFCFA)
+val WealthSurfaceVariantLight = Color(0xFFE2DCD1)
+val WealthOnSurfaceLight = Color(0xFF14221D)
+val WealthOnSurfaceVariantLight = Color(0xFF5A6862)
+val WealthOutlineLight = Color(0xFFC8BFB1)
+val WealthBorderLight = Color(0xFFDDD6CA)
+val WealthPrimaryLight = Color(0xFF0E6B50)
+val WealthPrimaryContainerLight = Color(0xFFDDF1E9)
+val WealthOnPrimaryContainerLight = Color(0xFF0A3D2E)
+val WealthGoldLight = Color(0xFFB8862D)
 
-val FintechSecondaryLight = Color(0xFF0E9F82)
-val FintechOnSecondaryLight = Color(0xFFFFFFFF)
-val FintechSecondaryContainerLight = Color(0xFFE7F7F3)
-val FintechOnSecondaryContainerLight = Color(0xFF0D4E42)
+val WealthBgDark = Color(0xFF091310)
+val WealthSurfaceDark = Color(0xFF11211C)
+val WealthSurfaceVariantDark = Color(0xFF182E27)
+val WealthOnSurfaceDark = Color(0xFFF3F7F5)
+val WealthOnSurfaceVariantDark = Color(0xFF93ACA2)
+val WealthOutlineDark = Color(0xFF2A453C)
+val WealthBorderDark = Color(0xFF1E362E)
+val WealthPrimaryDark = Color(0xFF34C795)
+val WealthPrimaryContainerDark = Color(0xFF123B2E)
+val WealthOnPrimaryContainerDark = Color(0xFFD5F7EA)
+val WealthGoldDark = Color(0xFFE3B85B)
 
-val FintechTertiaryLight = Color(0xFFE7A33E)
-val FintechOnTertiaryLight = Color(0xFFFFFFFF)
-val FintechTertiaryContainerLight = Color(0xFFFEF6E7)
-val FintechOnTertiaryContainerLight = Color(0xFF6B4611)
+// Theme 2: Neobank Frost — Cool Mist Slate & Royal Cobalt
+val FrostBgLight = Color(0xFFE6ECF5)
+val FrostSurfaceLight = Color(0xFFFFFFFF)
+val FrostSurfaceVariantLight = Color(0xFFD9E3F1)
+val FrostOnSurfaceLight = Color(0xFF101D36)
+val FrostOnSurfaceVariantLight = Color(0xFF586884)
+val FrostOutlineLight = Color(0xFFBAC8DE)
+val FrostBorderLight = Color(0xFFD1DCEB)
+val FrostPrimaryLight = Color(0xFF2563EB)
+val FrostPrimaryContainerLight = Color(0xFFDCE8FF)
+val FrostOnPrimaryContainerLight = Color(0xFF102A63)
 
-val BackgroundLight = Color(0xFFF7F8FC)
-val OnBackgroundLight = Color(0xFF17233B)
-val SurfaceLight = Color(0xFFFFFFFF)
-val OnSurfaceLight = Color(0xFF17233B)
-val SurfaceVariantLight = Color(0xFFF0F3F9)
-val OnSurfaceVariantLight = Color(0xFF77839A)
-val OutlineLight = Color(0xFFCBD4E4)
-val OutlineVariantLight = Color(0xFFE7ECF4)
+val FrostBgDark = Color(0xFF0A1120)
+val FrostSurfaceDark = Color(0xFF131E33)
+val FrostSurfaceVariantDark = Color(0xFF1A2945)
+val FrostOnSurfaceDark = Color(0xFFF5F7FC)
+val FrostOnSurfaceVariantDark = Color(0xFF9BA8BC)
+val FrostOutlineDark = Color(0xFF2F405F)
+val FrostBorderDark = Color(0xFF21304C)
+val FrostPrimaryDark = Color(0xFF5B96FF)
+val FrostPrimaryContainerDark = Color(0xFF1B3058)
+val FrostOnPrimaryContainerDark = Color(0xFFE3EEFF)
 
-// Dark Theme Palette
-val FintechPrimaryDark = ElectricBlueDark
-val FintechOnPrimaryDark = Color(0xFF08142B)
-val FintechPrimaryContainerDark = Color(0xFF1C2F52)
-val FintechOnPrimaryContainerDark = Color(0xFFE3EEFF)
+// Theme 3: Executive Graphite — Soft Pearl Gray & Matte Obsidian + Champagne Gold
+val GraphiteBgLight = Color(0xFFE7E9EE)
+val GraphiteSurfaceLight = Color(0xFFFFFFFF)
+val GraphiteSurfaceVariantLight = Color(0xFFDCDFE7)
+val GraphiteOnSurfaceLight = Color(0xFF12141A)
+val GraphiteOnSurfaceVariantLight = Color(0xFF5A606D)
+val GraphiteOutlineLight = Color(0xFFBEC3CF)
+val GraphiteBorderLight = Color(0xFFD3D7E1)
+val GraphitePrimaryLight = Color(0xFF1B1F27)
+val GraphitePrimaryContainerLight = Color(0xFFE4E6EC)
+val GraphiteOnPrimaryContainerLight = Color(0xFF12141A)
 
-val FintechSecondaryDark = Color(0xFF35C99A)
-val FintechOnSecondaryDark = Color(0xFF062920)
-val FintechSecondaryContainerDark = Color(0xFF12362E)
-val FintechOnSecondaryContainerDark = Color(0xFFD1FAF0)
+val GraphiteBgDark = Color(0xFF0B0C0F)
+val GraphiteSurfaceDark = Color(0xFF15181F)
+val GraphiteSurfaceVariantDark = Color(0xFF1F232E)
+val GraphiteOnSurfaceDark = Color(0xFFF4F5F8)
+val GraphiteOnSurfaceVariantDark = Color(0xFF9AA0AE)
+val GraphiteOutlineDark = Color(0xFF343A48)
+val GraphiteBorderDark = Color(0xFF252A36)
+val GraphitePrimaryDark = Color(0xFFE2B459)
+val GraphiteOnPrimaryDark = Color(0xFF1A1305)
+val GraphitePrimaryContainerDark = Color(0xFF332917)
+val GraphiteOnPrimaryContainerDark = Color(0xFFF9E5B8)
 
-val FintechTertiaryDark = Color(0xFFF0B44C)
-val FintechOnTertiaryDark = Color(0xFF3D2504)
-val FintechTertiaryContainerDark = Color(0xFF3E2D12)
-val FintechOnTertiaryContainerDark = Color(0xFFFEF3DC)
+// Shared Light/Dark Default Aliases
+val BackgroundLight = WealthBgLight
+val SurfaceLight = WealthSurfaceLight
+val SurfaceVariantLight = WealthSurfaceVariantLight
+val OutlineVariantLight = WealthBorderLight
+val BackgroundDark = FrostBgDark
+val SurfaceDark = FrostSurfaceDark
+val SurfaceVariantDark = FrostSurfaceVariantDark
+val OutlineVariantDark = FrostBorderDark
 
-val BackgroundDark = Color(0xFF0B1220)
-val OnBackgroundDark = Color(0xFFF5F7FC)
-val SurfaceDark = Color(0xFF131E31)
-val OnSurfaceDark = Color(0xFFF5F7FC)
-val SurfaceVariantDark = Color(0xFF192740)
-val OnSurfaceVariantDark = Color(0xFF9BA8BC)
-val OutlineDark = Color(0xFF2F405F)
-val OutlineVariantDark = Color(0xFF21304C)
-
-// Semantic Finance Tokens
-val FinanceIncomeGreen = Color(0xFF16A879)
+// Semantic Finance Tokens (Refined Contrast for Light & Dark)
+val FinanceIncomeGreen = Color(0xFF118A62)
 val FinanceIncomeGreenDark = Color(0xFF35C99A)
-val FinanceExpenseCoral = Color(0xFFE56B70)
+val FinanceExpenseCoral = Color(0xFFD64C55)
 val FinanceExpenseCoralDark = Color(0xFFF17B83)
-val FinanceSavingsTeal = Color(0xFF0E9F82)
+val FinanceSavingsTeal = Color(0xFF0D8A72)
 val FinanceSavingsTealDark = Color(0xFF35C99A)
-val FinanceWarningAmber = Color(0xFFE7A33E)
+val FinanceWarningAmber = Color(0xFFC9821E)
 val FinanceWarningAmberDark = Color(0xFFF0B44C)
 
-// Backwards-compatible Chart & Accent Tokens
+// Chart & Accent Tokens
 val ChartPrincipal = ElectricBlue
 val ChartInterest = FinanceExpenseCoral
 val ChartInvested = ElectricBlue

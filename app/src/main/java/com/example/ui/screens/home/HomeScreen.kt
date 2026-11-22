@@ -276,13 +276,15 @@ fun HomeScreen(
     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
     verticalArrangement = Arrangement.spacedBy(16.dp)
   ) {
-    // 1. Total Balance Hero Card (Sleek Modern Banking Card)
+    // 1. Total Balance Hero Card (Luxury Metallic Banking Card)
     item(key = "hero_balance") {
       Card(
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, semantic.heroAccent.copy(alpha = 0.28f)),
+        elevation = CardDefaults.cardElevation(
+          defaultElevation = if (semantic.isDark) 0.dp else 6.dp
+        ),
         modifier = Modifier
           .fillMaxWidth()
           .testTag("dashboard_balance_hero_card")
@@ -295,9 +297,18 @@ fun HomeScreen(
                 colors = listOf(semantic.heroStart, semantic.heroEnd)
               )
             )
-            .padding(horizontal = 20.dp, vertical = 18.dp)
+            .background(
+              Brush.radialGradient(
+                colors = listOf(
+                  semantic.heroAccent.copy(alpha = 0.22f),
+                  Color.Transparent
+                ),
+                radius = 520f
+              )
+            )
+            .padding(horizontal = 20.dp, vertical = 20.dp)
         ) {
-          Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+          Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
@@ -305,28 +316,30 @@ fun HomeScreen(
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(11.dp),
                 modifier = Modifier.weight(1f)
               ) {
                 Box(
                   modifier = Modifier
-                    .size(34.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White.copy(alpha = 0.12f)),
+                    .size(38.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(semantic.heroAccent.copy(alpha = 0.18f)),
                   contentAlignment = Alignment.Center
                 ) {
                   Icon(
                     imageVector = Icons.Default.AccountBalanceWallet,
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
+                    tint = semantic.heroAccent,
+                    modifier = Modifier.size(19.dp)
                   )
                 }
                 Column {
                   Text(
                     text = "TOTAL LIQUID BALANCE",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.72f)
+                    style = MaterialTheme.typography.labelSmall.copy(
+                      fontWeight = FontWeight.SemiBold
+                    ),
+                    color = Color.White.copy(alpha = 0.78f)
                   )
                   Text(
                     text = "${accounts.size} Linked Accounts",
@@ -347,7 +360,7 @@ fun HomeScreen(
                 Icon(
                   imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                   contentDescription = if (isPrivacyMode) "Show balances" else "Hide balances",
-                  tint = Color.White.copy(alpha = 0.88f),
+                  tint = Color.White.copy(alpha = 0.9f),
                   modifier = Modifier.size(20.dp)
                 )
               }
@@ -377,7 +390,8 @@ fun HomeScreen(
                 if (totalCreditDue > 0.0) {
                   Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = semantic.expense.copy(alpha = 0.24f)
+                    color = semantic.expense.copy(alpha = 0.28f),
+                    border = BorderStroke(1.dp, semantic.expense.copy(alpha = 0.45f))
                   ) {
                     Text(
                       text = "Card Due: ${CurrencyFormatter.formatWhole(totalCreditDue)}",
@@ -389,21 +403,22 @@ fun HomeScreen(
                       maxLines = 1,
                       softWrap = false,
                       overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                      modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
                     )
                   }
                 } else {
                   Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color.White.copy(alpha = 0.10f)
+                    color = Color.White.copy(alpha = 0.11f),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.14f))
                   ) {
                     Text(
                       text = "All cards settled",
                       style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-                      color = Color.White.copy(alpha = 0.85f),
+                      color = Color.White.copy(alpha = 0.88f),
                       maxLines = 1,
                       softWrap = false,
-                      modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                      modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
                     )
                   }
                 }
@@ -411,25 +426,25 @@ fun HomeScreen(
               Spacer(modifier = Modifier.width(8.dp))
               Surface(
                 onClick = onReportsClick,
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(11.dp),
+                color = semantic.heroCtaContainer,
                 modifier = Modifier.testTag("dashboard_hero_analytics_btn")
               ) {
                 Row(
-                  modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                  modifier = Modifier.padding(horizontal = 13.dp, vertical = 8.dp),
                   verticalAlignment = Alignment.CenterVertically,
                   horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                   Icon(
                     Icons.Default.BarChart,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = semantic.heroCtaContent,
                     modifier = Modifier.size(15.dp)
                   )
                   Text(
                     text = "Analytics",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = Color.White,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = semantic.heroCtaContent,
                     maxLines = 1,
                     softWrap = false
                   )
