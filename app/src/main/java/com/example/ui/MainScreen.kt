@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -35,6 +36,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -71,6 +73,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.SettingsBrightness
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -96,6 +99,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -112,6 +116,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -317,10 +322,6 @@ fun MainScreen(
     AllCalculatorsHubSheet(
       onDismiss = { showHubSheet = false },
       items = listOf(
-        CalculatorHubItem("Dashboard", "Financial overview & charts", Icons.Default.Dashboard, Color(0xFF1E3254)) {
-          currentDestination = MainDestination.HOME
-          showHubSheet = false
-        },
         CalculatorHubItem("Reports & Analytics", "Charts, trends & PDF/CSV", Icons.Default.BarChart, Color(0xFF3478F6)) {
           currentDestination = MainDestination.ANALYTICS
           showHubSheet = false
@@ -815,6 +816,7 @@ fun MainScreen(
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AllCalculatorsHubSheet(
   items: List<CalculatorHubItem>,
@@ -822,6 +824,7 @@ private fun AllCalculatorsHubSheet(
 ) {
   val haptic = LocalHapticFeedback.current
   var searchQuery by rememberSaveable { mutableStateOf("") }
+  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
   val filteredItems = remember(items, searchQuery) {
     if (searchQuery.isBlank()) items
@@ -831,140 +834,181 @@ private fun AllCalculatorsHubSheet(
     }
   }
 
-  Dialog(
+  ModalBottomSheet(
     onDismissRequest = onDismiss,
-    properties = DialogProperties(usePlatformDefaultWidth = false)
+    sheetState = sheetState,
+    containerColor = MaterialTheme.colorScheme.background,
+    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+    dragHandle = { BottomSheetDefaults.DragHandle() }
   ) {
-    Surface(
-      modifier = Modifier.fillMaxSize(),
-      color = MaterialTheme.colorScheme.background
+    Column(
+      modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(0.90f)
+        .padding(horizontal = 20.dp)
     ) {
-      Column(
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = "OmniFinCalc Tools",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+          )
+          Text(
+            text = "Finance managers, reports & calculators",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+        }
+        IconButton(onClick = onDismiss) {
+          Icon(Icons.Default.Close, contentDescription = "Close")
+        }
+      }
+
+      Spacer(modifier = Modifier.height(10.dp))
+
+      // Compact single-line search bar
+      Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = Modifier
-          .fillMaxSize()
-          .statusBarsPadding()
-          .navigationBarsPadding()
-          .padding(horizontal = 20.dp, vertical = 14.dp)
+          .fillMaxWidth()
+          .height(44.dp)
+          .testTag("hub_search_input")
       ) {
         Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-          Column {
-            Text(
-              text = "OmniFinCalc Tools",
-              style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-            Text(
-              text = "Finance managers, reports & calculators",
-              style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+          Icon(
+            Icons.Default.Search,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(18.dp)
+          )
+          Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+          ) {
+            if (searchQuery.isEmpty()) {
+              Text(
+                text = "Search tools...",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+            BasicTextField(
+              value = searchQuery,
+              onValueChange = { searchQuery = it },
+              singleLine = true,
+              textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
+              ),
+              cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+              modifier = Modifier.fillMaxWidth()
             )
           }
-          IconButton(onClick = onDismiss) {
-            Icon(Icons.Default.Close, contentDescription = "Close")
+          if (searchQuery.isNotBlank()) {
+            IconButton(
+              onClick = { searchQuery = "" },
+              modifier = Modifier.size(28.dp)
+            ) {
+              Icon(
+                Icons.Default.Close,
+                contentDescription = "Clear search",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
+              )
+            }
           }
         }
+      }
 
-        Spacer(modifier = Modifier.height(12.dp))
+      Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
-          value = searchQuery,
-          onValueChange = { searchQuery = it },
-          placeholder = { Text("Search tools (EMI, SIP, tax, currency, split...)", fontSize = 13.sp) },
-          leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-          },
-          trailingIcon = {
-            if (searchQuery.isNotBlank()) {
-              IconButton(onClick = { searchQuery = "" }) {
-                Icon(Icons.Default.Close, contentDescription = "Clear search", modifier = Modifier.size(18.dp))
-              }
-            }
-          },
-          singleLine = true,
-          shape = RoundedCornerShape(14.dp),
+      if (filteredItems.isEmpty()) {
+        Box(
           modifier = Modifier
             .fillMaxWidth()
-            .testTag("hub_search_input")
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        if (filteredItems.isEmpty()) {
-          Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(vertical = 32.dp),
-            contentAlignment = Alignment.Center
-          ) {
-            Text(
-              text = "No tools matching \"$searchQuery\"",
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-              fontSize = 14.sp
-            )
-          }
-        } else {
-          LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 156.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-              .fillMaxWidth()
-              .weight(1f)
-          ) {
-            items(filteredItems, key = { it.title }, contentType = { "calculator_hub_item" }) { item ->
-              Card(
-                onClick = {
-                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                  item.onClick()
-                },
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                  containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                modifier = Modifier.fillMaxWidth()
+            .padding(vertical = 32.dp),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "No tools matching \"$searchQuery\"",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 14.sp
+          )
+        }
+      } else {
+        LazyVerticalGrid(
+          columns = GridCells.Adaptive(minSize = 156.dp),
+          horizontalArrangement = Arrangement.spacedBy(10.dp),
+          verticalArrangement = Arrangement.spacedBy(10.dp),
+          contentPadding = PaddingValues(top = 2.dp, bottom = 56.dp),
+          modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+            .navigationBarsPadding()
+        ) {
+          items(filteredItems, key = { it.title }, contentType = { "calculator_hub_item" }) { item ->
+            Card(
+              onClick = {
+                haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
+                item.onClick()
+              },
+              shape = RoundedCornerShape(16.dp),
+              colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+              ),
+              border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Row(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
               ) {
-                Row(
+                Box(
                   modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                  verticalAlignment = Alignment.CenterVertically
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(item.iconBgColor),
+                  contentAlignment = Alignment.Center
                 ) {
-                  Box(
-                    modifier = Modifier
-                      .size(40.dp)
-                      .clip(RoundedCornerShape(12.dp))
-                      .background(item.iconBgColor),
-                    contentAlignment = Alignment.Center
-                  ) {
-                    Icon(
-                      item.icon,
-                      contentDescription = item.title,
-                      tint = Color.White,
-                      modifier = Modifier.size(20.dp)
-                    )
-                  }
-                  Spacer(modifier = Modifier.width(10.dp))
-                  Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                      text = item.title,
-                      fontWeight = FontWeight.Bold,
-                      fontSize = 13.sp,
-                      color = MaterialTheme.colorScheme.onSurface,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                      text = item.subtitle,
-                      fontSize = 11.sp,
-                      color = MaterialTheme.colorScheme.onSurfaceVariant,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
-                    )
-                  }
+                  Icon(
+                    item.icon,
+                    contentDescription = item.title,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                  )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                  Text(
+                    text = item.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                  Text(
+                    text = item.subtitle,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
                 }
               }
             }

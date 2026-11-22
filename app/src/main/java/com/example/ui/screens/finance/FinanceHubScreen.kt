@@ -1913,23 +1913,6 @@ private fun ExpensesSection(
                   )
                 }
               }
-
-              IconButton(
-                onClick = {
-                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                  CurrencyFormatter.isPrivacyModeEnabled = !CurrencyFormatter.isPrivacyModeEnabled
-                },
-                modifier = Modifier
-                  .size(36.dp)
-                  .testTag("finance_hero_privacy_toggle")
-              ) {
-                Icon(
-                  imageVector = if (isPrivacy) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                  contentDescription = if (isPrivacy) "Show balances" else "Hide balances",
-                  tint = Color.White.copy(alpha = 0.85f),
-                  modifier = Modifier.size(19.dp)
-                )
-              }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -3872,7 +3855,7 @@ private fun BankCardItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 2.dp)
           ) {
-            val displayedNum = if (isMasked && account.accountNumber.length > 4) {
+            val displayedNum = if (CurrencyFormatter.isPrivacyModeEnabled && account.accountNumber.length > 4) {
               "•••• •••• " + account.accountNumber.takeLast(4)
             } else {
               account.accountNumber
@@ -3884,18 +3867,6 @@ private fun BankCardItem(
               fontSize = 16.sp,
               color = Color.White
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-              onClick = { isMasked = !isMasked },
-              modifier = Modifier.size(24.dp)
-            ) {
-              Icon(
-                if (isMasked) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                contentDescription = "Toggle mask",
-                tint = Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.size(16.dp)
-              )
-            }
           }
         }
 

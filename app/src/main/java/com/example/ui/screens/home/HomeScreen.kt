@@ -44,8 +44,6 @@ import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -347,22 +345,6 @@ fun HomeScreen(
                     color = Color.White.copy(alpha = 0.56f)
                   )
                 }
-              }
-              IconButton(
-                onClick = {
-                  haptic.performConfiguredHapticFeedback(HapticFeedbackType.TextHandleMove)
-                  onTogglePrivacyMode()
-                },
-                modifier = Modifier
-                  .minimumInteractiveComponentSize()
-                  .testTag("dashboard_privacy_toggle")
-              ) {
-                Icon(
-                  imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                  contentDescription = if (isPrivacyMode) "Show balances" else "Hide balances",
-                  tint = Color.White.copy(alpha = 0.9f),
-                  modifier = Modifier.size(20.dp)
-                )
               }
             }
 
